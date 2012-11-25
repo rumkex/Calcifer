@@ -14,10 +14,5 @@ namespace Calcifer.Engine.Graphics
         public Material Material;
         public SkinnedVertex[] Vertices;
         public Vector3i[] Triangles;
-
-        public bool Validate()
-        {
-            return Triangles.All(triangle => (triangle.X < Vertices.Length) && (triangle.Y < Vertices.Length) && (triangle.Z < Vertices.Length));
-        }
     }
 }

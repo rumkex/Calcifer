@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using Calcifer.Engine.Components;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace Calcifer.Engine.Scenegraph
@@ -23,10 +24,5 @@ namespace Calcifer.Engine.Scenegraph
         {
             GL.PopMatrix();
         }
-    }
-
-    public class TransformComponent
-    {
-        public Matrix4 Matrix { get; set; }
     }
 }

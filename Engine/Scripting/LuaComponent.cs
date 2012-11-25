@@ -1,59 +1,46 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Calcifer.Engine.Components;
 using ComponentKit.Model;
 
-namespace Sunflower.Engine.Scripting
+namespace Calcifer.Engine.Scripting
 {
+    public abstract class ScriptingComponent : Component, IUpdateable
+    {
+        public virtual void Update(double dt)
+        {
+        }
+    }
+    public class LuaComponent : ScriptingComponent
+    {
+        private LuaService service;
+        private float wait;
+        public string Source
+        {
+            get;
+            private set;
+        }
+        public bool IsWaiting
+        {
+            get
+            {
+                return this.wait < 0f;
+            }
+        }
+        public LuaComponent(string code)
+        {
+            this.Source = code;
+        }
 
-    //public class LuaComponent: DependencyComponent
-    //{
-    //    public string Source { get; private set; }
-    //    public bool IsWaiting { get { return wait < 0.0f; } }
-
-    //    private LuaService service;
-    //    private float wait;
-
-    //    public LuaComponent(string code)
-    //    {
-    //        Source = code;
-    //    }
-
-    //    protected override void OnAdded(ComponentStateEventArgs e)
-    //    {
-    //        service = Owner.Manager.GetService<LuaService>();
-    //         base.OnAdded(e);
-    //    }
-
-    //    public override void Update(double dt)
-    //    { 
-    //        if (IsWaiting)
-    //            wait -= (float)dt;
-    //        service.ExecuteScript(this);
-    //    }
-
-    //    public void Wait(float seconds)
-    //    {
-    //        wait = seconds;
-    //    }
-    //}
-
-    //// Miscellaneous properties from LSA
-    //public class LuaStorageComponent: Component
-    //{
-    //    public bool CanWalk { get; set; }
-    //    public bool CanPush { get; set; }
-    //    public bool CanHitWall { get; set; }
-    //    public bool CanClimb { get; set; }
-    //    public bool CanGetOver { get; set; }
-
-    //    public List<string> Nodes { get; private set; }
-    //    public int CurrentNode { get; set; }
-
-    //    public LuaStorageComponent(IEnumerable<string> nodes)
-    //    {
-    //        Nodes = new List<string>(nodes);
-    //    }
-    //}
+        public override void Update(double dt)
+        {
+            if (this.IsWaiting)
+            {
+                this.wait -= (float)dt;
+            }
+            this.service.ExecuteScript(this);
+        }
+        public void Wait(float seconds)
+        {
+            this.wait = seconds;
+        }
+    }
 }

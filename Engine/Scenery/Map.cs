@@ -22,7 +22,7 @@ namespace Calcifer.Engine.Scenery
 		{
 			get
 			{
-				XmlSerializerNamespaces xmlSerializerNamespaces = new XmlSerializerNamespaces();
+				var xmlSerializerNamespaces = new XmlSerializerNamespaces();
 				xmlSerializerNamespaces.Add("", "urn:Map");
 				return xmlSerializerNamespaces;
 			}
@@ -38,8 +38,8 @@ namespace Calcifer.Engine.Scenery
 		}
 		public void ReadXml(XmlReader reader)
 		{
-			XmlSerializer xmlSerializer = new XmlSerializer(typeof(AssetReference));
-			XmlSerializer xmlSerializer2 = new XmlSerializer(typeof(EntityDefinition));
+			var assetSerializer = new XmlSerializer(typeof(AssetReference));
+			var entitySerializer = new XmlSerializer(typeof(EntityDefinition));
 			if (reader.MoveToContent() != XmlNodeType.Element || reader.LocalName != "map")
 			{
 				return;
@@ -48,28 +48,28 @@ namespace Calcifer.Engine.Scenery
 			{
 				while (reader.MoveToContent() == XmlNodeType.Element && reader.LocalName == "asset")
 				{
-					AssetReference assetReference = xmlSerializer.Deserialize(reader) as AssetReference;
-					this.Assets.Add(assetReference.Name, assetReference);
+				    var assetReference = assetSerializer.Deserialize(reader) as AssetReference;
+				    if (assetReference != null) Assets.Add(assetReference.Name, assetReference);
 				}
-				while (reader.MoveToContent() == XmlNodeType.Element && reader.LocalName == "entity")
-				{
-					EntityDefinition entityDefinition = xmlSerializer2.Deserialize(reader) as EntityDefinition;
-					this.Entities.Add(entityDefinition.Name, entityDefinition);
-				}
+			    while (reader.MoveToContent() == XmlNodeType.Element && reader.LocalName == "entity")
+			    {
+			        var entityDefinition = entitySerializer.Deserialize(reader) as EntityDefinition;
+			        if (entityDefinition != null) Entities.Add(entityDefinition.Name, entityDefinition);
+			    }
 			}
 			reader.ReadEndElement();
 		}
 		public void WriteXml(XmlWriter writer)
 		{
-			XmlSerializer xmlSerializer = new XmlSerializer(typeof(AssetReference));
-			XmlSerializer xmlSerializer2 = new XmlSerializer(typeof(EntityDefinition));
-			foreach (KeyValuePair<string, AssetReference> current in this.Assets)
+			var assetSerializer = new XmlSerializer(typeof(AssetReference));
+			var entitySerializer = new XmlSerializer(typeof(EntityDefinition));
+			foreach (var assetEntry in Assets)
 			{
-				xmlSerializer.Serialize(writer, current.Value, Map.Namespaces);
+				assetSerializer.Serialize(writer, assetEntry.Value, Map.Namespaces);
 			}
-			foreach (KeyValuePair<string, EntityDefinition> current2 in this.Entities)
+			foreach (var entityEntry in Entities)
 			{
-				xmlSerializer2.Serialize(writer, current2.Value, Map.Namespaces);
+				entitySerializer.Serialize(writer, entityEntry.Value, Map.Namespaces);
 			}
 		}
 	}

@@ -6,6 +6,7 @@ namespace Calcifer.Engine.Graphics
 {
     public class GeometryBuilder
     {
+        private List<Geometry> submeshes; 
         private readonly Dictionary<Vector3, LinkedList<int>> vertindex;
         private readonly List<SkinnedVertex> vertices;
         private readonly List<Vector3i> triangles;
@@ -13,6 +14,7 @@ namespace Calcifer.Engine.Graphics
 
         public GeometryBuilder()
         {
+            submeshes = new List<Geometry>();
             vertindex = new Dictionary<Vector3, LinkedList<int>>();
             indices = new int[4];
             vertices = new List<SkinnedVertex>();
@@ -77,7 +79,12 @@ namespace Calcifer.Engine.Graphics
             Add(new[] { v1, v2, v3, v4 }, false);
         }
 
-        public Geometry ToGeometry()
+        public IEnumerable<Geometry> GetGeometry()
+        {
+            return submeshes;
+        }
+
+        public void NextGeometry()
         {
             var g = new Geometry
                         {
@@ -85,7 +92,7 @@ namespace Calcifer.Engine.Graphics
                             Vertices = vertices.ToArray(),
                             Material = Material
                         };
-            return g;
+            submeshes.Add(g);
         }
     }
 }

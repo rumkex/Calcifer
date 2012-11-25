@@ -3,8 +3,7 @@ using Calcifer.Engine.Graphics.Primitives;
 using ComponentKit.Model;
 using OpenTK;
 using System;
-using System.IO;
-using System.Threading;
+
 namespace Calcifer.Engine.Components
 {
 	public class TransformComponent : Component
@@ -17,7 +16,7 @@ namespace Calcifer.Engine.Components
 		{
 			get
 			{
-				return (this.transformCallback != null) ? this.transformCallback() : this.transform;
+				return (transformCallback != null) ? transformCallback() : transform;
 			}
 		}
 		public Vector3 Translation

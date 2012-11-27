@@ -81,6 +81,7 @@ namespace Calcifer.Engine.Graphics
 
         public IEnumerable<Geometry> GetGeometry()
         {
+            NextGeometry();
             return submeshes;
         }
 
@@ -93,6 +94,8 @@ namespace Calcifer.Engine.Graphics
                             Material = Material
                         };
             submeshes.Add(g);
+            vertices.Clear();
+            triangles.Clear();
         }
     }
 }

@@ -53,7 +53,7 @@ namespace Calcifer.Engine.Graphics
 		public BaseRenderPass(ICamera camera)
 		{
 			this.camera = camera;
-			this.shader = ShaderFactory.Create(File.OpenRead("FX/skin.vert"), File.OpenRead("FX/skin.frag"));
+			this.shader = ShaderFactory.Create(File.OpenRead("../FX/skin.vert"), File.OpenRead("../FX/skin.frag"));
 		}
 		public override void BeginRender()
 		{

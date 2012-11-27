@@ -17,28 +17,28 @@ namespace Calcifer.Engine.Graphics.Animation
         {
             get
             {
-                return this.current.Name;
+                return current != null ? current.Name : "";
             }
         }
         public float Speed
         {
             get
             {
-                return this.current.Speed;
+                return current != null ? current.Speed : 0;
             }
         }
         public float Length
         {
             get
             {
-                return this.current.Length;
+                return current != null ? current.Length: 0;
             }
         }
         public float Time
         {
             get
             {
-                return this.current.Time;
+                return current != null ? current.Time: 0;
             }
         }
         public override Pose Pose

@@ -50,6 +50,7 @@ namespace Calcifer.Engine.Scenegraph
             {
             }
         }
+
         internal class GLDrawer : IDebugDrawer
         {
             public void DrawLine(JVector start, JVector end)
@@ -65,20 +66,25 @@ namespace Calcifer.Engine.Scenegraph
                 GL.Vertex3(pos3.X, pos3.Y, pos3.Z);
             }
         }
+
         private readonly SceneNode root;
+
         public ScenegraphBuilder(SceneNode root)
         {
             this.root = root;
         }
+
         public void AddLight(Vector3 pos, Vector4 ambient, Vector4 diffuse, Vector4 specular)
         {
             GL.Enable(EnableCap.Light0);
             new LightNode(pos, ambient, diffuse, specular, this.root);
         }
+
         public void AddModelFromEntity(IEntityRecord entity)
         {
             this.AddModelFromEntity(this.root, entity);
         }
+
         public void AddModelFromEntity(SceneNode parent, IEntityRecord entity)
         {
             var physicsComponent = entity.GetComponent<PhysicsComponent>();

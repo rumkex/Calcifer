@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Calcifer</RootNamespace>
     <AssemblyName>GameEngine</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
@@ -30,6 +30,24 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ComponentKit">
       <HintPath>..\References\ComponentKit.dll</HintPath>
@@ -39,6 +57,9 @@
     </Reference>
     <Reference Include="OpenTK">
       <HintPath>..\References\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLua">
+      <HintPath>..\References\SharpLua.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -127,10 +148,6 @@
     <ProjectReference Include="..\Jitter\Jitter.csproj">
       <Project>{aa03ef1a-94f7-4d30-ab14-2092863ff923}</Project>
       <Name>Jitter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LuaSharp\LuaSharp.csproj">
-      <Project>{C651A291-775F-46D6-A2D8-BEF573F97D1E}</Project>
-      <Name>LuaSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

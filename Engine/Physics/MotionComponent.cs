@@ -29,7 +29,7 @@ namespace Calcifer.Engine.Physics
 
         public void SetTargetVelocity(Vector3 speed)
         {
-            controller.TargetVelocity = speed.ToVector();
+            controller.TargetVelocity = speed.ToJVector();
         }
 
         public void Jump()

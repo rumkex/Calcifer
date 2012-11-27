@@ -31,14 +31,14 @@ namespace Calcifer.Engine.Physics
         {
             base.OnAdded(registrationArgs);
             Body.Orientation = JMatrix.CreateFromQuaternion(transform.Rotation.ToQuaternion());
-            Body.Position = transform.Translation.ToVector();
+            Body.Position = transform.Translation.ToJVector();
             transform.Bind(TransformFeedback);
         }
 
         private ScalableTransform TransformFeedback()
         {
             return new ScalableTransform(JQuaternion.CreateFromMatrix(Body.Orientation).ToQuaternion(),
-                                         Body.Position.ToVector());
+                                         Body.Position.ToVector3());
         }
     }
 }

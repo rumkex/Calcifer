@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -17,7 +18,8 @@ namespace Calcifer.Engine.Scenery
 		{
 			get
 			{
-				return base.Find((Parameter p) => p.Name == key).Value;
+			    var result = Find(p => p.Name == key);
+			    return result != null ? result.Value: null;
 			}
 		}
 		public ComponentDefinition()
@@ -34,7 +36,7 @@ namespace Calcifer.Engine.Scenery
 		public bool TryGetValue(string key, out string value)
 		{
 			value = "";
-			Parameter parameter = base.Find((Parameter p) => p.Name == key);
+			var parameter = Find(p => p.Name == key);
 			if (parameter == null)
 			{
 				return false;

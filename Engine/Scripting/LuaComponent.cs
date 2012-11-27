@@ -11,7 +11,7 @@ namespace Calcifer.Engine.Scripting
     }
     public class LuaComponent : ScriptingComponent
     {
-        private LuaService service;
+        public LuaService Service { get; set; }
         private float wait;
         public string Source
         {
@@ -36,7 +36,7 @@ namespace Calcifer.Engine.Scripting
             {
                 this.wait -= (float)dt;
             }
-            this.service.ExecuteScript(this);
+            Service.ExecuteScript(this);
         }
         public void Wait(float seconds)
         {

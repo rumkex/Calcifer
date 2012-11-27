@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Calcifer.Engine.Components;
 using ComponentKit;
+using ComponentKit.Model;
 using Jitter;
 using Jitter.Collision;
 
@@ -13,9 +14,9 @@ namespace Calcifer.Engine.Physics
 
         public World World { get; private set; }
 
-        public PhysicsService(IEntityRecordCollection entities)
+        public PhysicsService()
         {
-            this.entities = entities;
+            this.entities = EntityRegistry.Current;
             trigger = c => c is PhysicsComponent;
             World = new World(new CollisionSystemSAP{UseTriangleMeshNormal = false});
             entities.SetTrigger(trigger, ComponentSync);

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
 using Jitter.LinearMath;
 using OpenTK;
 
@@ -63,12 +65,25 @@ namespace Calcifer.Utilities
 
     public static class ExtensionMethods
     {
-        public static Vector3 ToVector(this JVector v)
+        public static string ConvertToString(this Vector3 v)
+        {
+            return v.X.ToString(CultureInfo.InvariantCulture) + ";"
+                + v.Y.ToString(CultureInfo.InvariantCulture) + ";"
+                + v.Z.ToString(CultureInfo.InvariantCulture);
+        }
+
+        public static Vector3 ConvertToVector(this string s)
+        {
+            var coords = s.Split(';').Select(t => float.Parse(t, CultureInfo.InvariantCulture)).ToList();
+            return new Vector3(coords[0], coords[1], coords[2]);
+        }
+
+        public static Vector3 ToVector3(this JVector v)
         {
             return new Vector3(v.X, v.Y, v.Z);
         }
 
-        public static JVector ToVector(this Vector3 v)
+        public static JVector ToJVector(this Vector3 v)
         {
             return new JVector(v.X, v.Y, v.Z);
         }

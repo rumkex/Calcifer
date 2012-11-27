@@ -55,6 +55,9 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\References\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="Jitter">
+      <HintPath>..\References\Jitter.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK">
       <HintPath>..\References\OpenTK.dll</HintPath>
     </Reference>
@@ -143,12 +146,6 @@
     <Compile Include="Utilities\Logging\Log.cs" />
     <Compile Include="Utilities\MathUtils.cs" />
     <Compile Include="Utilities\TextParser.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Jitter\Jitter.csproj">
-      <Project>{aa03ef1a-94f7-4d30-ab14-2092863ff923}</Project>
-      <Name>Jitter</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

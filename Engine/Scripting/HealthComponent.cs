@@ -7,66 +7,63 @@ namespace Calcifer.Engine.Scripting
     public class HealthComponent : Component
     {
         private int health;
-        public event EventHandler<EntityEventArgs> Dying;
-        public event EventHandler<EntityEventArgs> Hit;
-        public int Health
-        {
-            get
-            {
-                return this.health;
-            }
-            set
-            {
-                this.DoDamage(this.health - value);
-            }
-        }
-        public int MaxHealth
-        {
-            get;
-            set;
-        }
-        public bool IsWounded
-        {
-            get
-            {
-                return this.Health < this.MaxHealth;
-            }
-        }
-        public bool IsDead
-        {
-            get
-            {
-                return this.Health == 0;
-            }
-        }
+
+        public HealthComponent() : this(100)
+        {}
+
         public HealthComponent(int maxHealth)
         {
-            this.MaxHealth = maxHealth;
+            MaxHealth = maxHealth;
+            health = maxHealth;
         }
+
+        public int Health
+        {
+            get { return health; }
+            set { DoDamage(health - value); }
+        }
+
+        public int MaxHealth { get; set; }
+
+        public bool IsWounded
+        {
+            get { return Health < MaxHealth; }
+        }
+
+        public bool IsDead
+        {
+            get { return Health == 0; }
+        }
+
+        public event EventHandler<EntityEventArgs> Dying;
+        public event EventHandler<EntityEventArgs> Hit;
+
         public void DoDamage(int value)
         {
-            if (value > this.Health)
+            if (value > Health)
             {
-                this.health = 0;
-                this.OnDying(new EntityEventArgs(this.Record));
+                health = 0;
+                OnDying(new EntityEventArgs(Record));
             }
             else
             {
-                this.health -= value;
-                this.OnHit(new EntityEventArgs(this.Record));
+                health -= value;
+                OnHit(new EntityEventArgs(Record));
             }
         }
+
         protected virtual void OnHit(EntityEventArgs e)
         {
-            var hit = this.Hit;
+            EventHandler<EntityEventArgs> hit = Hit;
             if (hit != null)
             {
                 hit(this, e);
             }
         }
+
         protected virtual void OnDying(EntityEventArgs e)
         {
-            var dying = this.Dying;
+            EventHandler<EntityEventArgs> dying = Dying;
             if (dying != null)
             {
                 dying(this, e);

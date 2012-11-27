@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Graphics.Animation;
-using Calcifer.Engine.Graphics.Primitives;
-using Calcifer.Engine.Physics;
-using Calcifer.Engine.Scripting;
 using Calcifer.Utilities;
 using Calcifer.Utilities.Logging;
 using ComponentKit;
@@ -39,6 +36,7 @@ namespace Calcifer.Engine.Scripting
             InitializeAnimation();
             InitializeHealth();
             InitializeSound();
+            InitializeText();
             EntityRegistry.Current.SetTrigger(c => c is LuaComponent, ComponentSync);
         }
 
@@ -109,7 +107,7 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("get_rot_y", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().Z * 180f / 3.14159274f).Method);
             lua.RegisterFunction("get_rot_z", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().Y * 180f / 3.14159274f).Method);
             lua.RegisterFunction("angle", this, new Func<string, string, double>(GetAngle).Method);
-            lua.RegisterFunction("distance", this, new Func<string, string, double>((name1, name2) => (Get<TransformComponent>(name1).Translation - Get<TransformComponent>(name2).Translation).Length).Method);
+            lua.RegisterFunction("distance", this, new Func<string, string, double>((name1, name2) => Distance(name1, name2)).Method);
             lua.RegisterFunction("set_pos", this, new Action<string, float, float, float>((name, x, y, z) => Get<TransformComponent>(name).Translation = new Vector3(x, y, z)).Method);
             lua.RegisterFunction("move_step_local", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
             lua.RegisterFunction("move_step", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
@@ -122,14 +120,18 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("get_node", this,  new Func<string, int>(name => Get<LuaStorageComponent>(name).CurrentNode).Method);
             lua.RegisterFunction("set_node", this,  new Action<string, int>((name, id) => Get<LuaStorageComponent>(name).CurrentNode = id).Method);
             lua.RegisterFunction("move_to_node", this,  new Action(() => { }).Method);
-            lua.RegisterFunction("is_at_node", this,  new Func<string, bool>(name => IsNear(name, Get<LuaStorageComponent>(name).Nodes[Get<LuaStorageComponent>(name).CurrentNode])).Method);
+            lua.RegisterFunction("is_at_node", this,  new Func<string, bool>(name => Distance(name, Get<LuaStorageComponent>(name).Nodes[Get<LuaStorageComponent>(name).CurrentNode]) < 0.5f).Method);
+            lua.RegisterFunction("distance_to_node", this,
+                                 new Func<string, int, float>((name, id) => Distance(name, Get<LuaStorageComponent>(name).Nodes[id])).Method);
         }
+
         private void InitializePhysics()
         {
             lua.RegisterFunction("collision_between", this, new Func<string, string, bool>((name1, name2) => false).Method);
             lua.RegisterFunction("set_gravity", this,  new Action<string, float>((name, value) => { }).Method);
             lua.RegisterFunction("set_restitution", this, new Action<string, float>((name, value) => { }).Method);
         }
+
         private void InitializeAnimation()
         {
             lua.RegisterFunction("set_anim", this,  new Action<string, string>((name, anim) => GetAnimationController(name).Start(anim, false)).Method);
@@ -150,12 +152,27 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("get_wounded", this,  new Func<string, bool>(name => GetHealthComponent(name).IsWounded).Method);
             lua.RegisterFunction("set_wounded", this,  new Action<string, bool>((name, value) => Log.WriteLine(LogLevel.Error, "IsWounded property is read-only. Use set_health instead")).Method);
         }
+
         private void InitializeSound()
         {
             lua.RegisterFunction("get_sound", this,  new Func<string, string>(name => name).Method);
             lua.RegisterFunction("play_sound", this,  new Action<string, string>((owner, sound) => PlaySound(owner, sound, false, 1f)).Method);
             lua.RegisterFunction("play_sound_loop", this,  new Action<string, string>((owner, sound) => PlaySound(owner, sound, true, 1f)).Method);
             lua.RegisterFunction("play_sound_random_pitch", this,  new Action<string, string>((owner, sound) => PlaySound(owner, sound, false, 0.95f + 0.1f * (float)rand.NextDouble())).Method);
+        }
+
+        private void InitializeText()
+        {
+            lua.RegisterFunction("get_choice", this, new Func<string>(() => "").Method);
+            lua.RegisterFunction("set_choices", this, GetType().GetMethod("SetChoices"));
+        }
+
+        public void SetChoices(params object[] args)
+        {
+            foreach (var o in args)
+            {
+                Console.WriteLine(o);
+            }
         }
 
         private double GetAngle(string name1, string name2)
@@ -165,13 +182,11 @@ namespace Calcifer.Engine.Scripting
             return 2.0 * Math.Acos(rotation.X * rotation2.X + rotation.Y * rotation2.Y + rotation.Z * rotation2.Z + rotation.W * rotation2.W);
         }
 
-        private bool IsNear(string name1, string name2)
+        private float Distance(string name1, string name2)
         {
             var transform = Get<TransformComponent>(name1).Transform;
             var transform2 = Get<TransformComponent>(name2).Transform;
-            double angle = GetAngle(name1, name2);
-            float length = (transform.Translation - transform2.Translation).Length;
-            return angle < 0.1f * Math.PI && length < 0.5f;
+            return (transform.Translation - transform2.Translation).Length;
         }
 
         private BlendAnimationController GetAnimationController(string name)
@@ -199,7 +214,7 @@ namespace Calcifer.Engine.Scripting
             var healthComponent = Entity.Find(name).GetComponent<HealthComponent>();
             if (healthComponent != null)
                 return healthComponent;
-            return null; //throw new Exception("Immortal object! HealthComponent not present in " + name);
+            throw new LuaException("Immortal object! HealthComponent not present in " + name);
         }
 
         private void PlaySound(string owner, string sound, bool looped, float pitch)

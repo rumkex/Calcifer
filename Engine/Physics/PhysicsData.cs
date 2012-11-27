@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Calcifer.Engine.Content;
 using Calcifer.Engine.Graphics;
 using Calcifer.Utilities;
@@ -10,46 +11,30 @@ namespace Calcifer.Engine.Physics
 {
     public class PhysicsData : IResource
     {
-        public List<JVector> Positions
+        public struct SubShape
         {
-            get;
-            private set;
+            public Material Material;
+            public List<JVector> Positions;
+            public List<TriangleVertexIndices> Triangles;
+
+            public SubShape(IEnumerable<JVector> pos, IEnumerable<TriangleVertexIndices> tri, Material material)
+            {
+                Material = material;
+                Positions = new List<JVector>(pos);
+                Triangles = new List<TriangleVertexIndices>(tri);
+            }
         }
-        public List<TriangleVertexIndices> Triangles
-        {
-            get;
-            private set;
-        }
-        public List<Material> Materials
-        {
-            get;
-            private set;
-        }
-        public PhysicsData(List<JVector> positions, List<TriangleVertexIndices> triangles, List<Material> materials)
-        {
-            Materials = materials;
-            Positions = positions;
-            Triangles = triangles;
-        }
+
+        public List<SubShape> Shapes { get; private set; }
 
         public PhysicsData(IEnumerable<Geometry> mesh)
         {
-            Positions = new List<JVector>();
-            Triangles = new List<TriangleVertexIndices>();
-            Materials = new List<Material>();
-            foreach (var g in mesh)
-            {
-                var vmap = new Dictionary<int, int>();
-                for (var i = 0; i < g.Vertices.Length; i++)
-                {
-                    var v = g.Vertices[i];
-                    vmap.Add(i, Positions.Count);
-                    Positions.Add(v.Position.ToJVector());
-                    Materials.Add(new Material());
-                }
-                foreach (var t in g.Triangles)
-                    Triangles.Add(new TriangleVertexIndices(vmap[t.X], vmap[t.Y], vmap[t.Z]));
-            }
+            Shapes = mesh.Select(g => 
+                                 new SubShape(
+                                     g.Vertices.Select(v => v.Position.ToJVector()),
+                                     g.Triangles.Select(t => new TriangleVertexIndices(t.X, t.Y, t.Z)),
+                                     new Material()
+                                     )).ToList();
         }
     }
 }

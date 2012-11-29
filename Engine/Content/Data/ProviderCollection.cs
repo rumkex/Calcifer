@@ -49,7 +49,7 @@ namespace Calcifer.Engine.Content.Data
             {
                 if (!directory.HasDirectory(array[i]))
                 {
-                    throw new DirectoryNotFoundException(string.Format("Directory not found: {0}", directory.FullName));
+                    throw new DirectoryNotFoundException(string.Format("Directory not found: {0}", array[i]));
                 }
                 directory = directory.GetDirectory(array[i]);
             }

@@ -2,6 +2,7 @@
 using Calcifer.Engine.Graphics;
 using Calcifer.Engine.Graphics.Buffers;
 using Calcifer.Engine.Graphics.Primitives;
+using Calcifer.Utilities.Logging;
 using OpenTK.Graphics.OpenGL;
 
 namespace Calcifer.Engine.Scenegraph
@@ -28,6 +29,13 @@ namespace Calcifer.Engine.Scenegraph
             IBO.Bind();
         }
 
+
+        public override void VisitChildren(RenderPass pass)
+        {
+            if (VBO.Disposed || IBO.Disposed) return;
+            base.VisitChildren(pass);
+        }
+
         public override void EndRender()
         {
             VBO.Unbind();
@@ -46,25 +54,19 @@ namespace Calcifer.Engine.Scenegraph
 
     public class SubmeshNode : SceneNode
     {
-        private int ioffset;
-        private int tricount;
-        private VBONode vbo;
+        private int count;
+        private int offset;
 
-        public SubmeshNode(SceneNode parent, VBONode vboNode, Geometry g, int vboOffset, int iboOffset) : base(parent)
+        public SubmeshNode(SceneNode parent, Geometry g) : base(parent)
         {
-            vbo = vboNode;
-            ioffset = iboOffset;
-            tricount = g.Triangles.Length;
-            vbo.VBO.Write(vboOffset, g.Vertices);
-            vbo.IBO.Write(ioffset, g.Triangles);
+            count = g.Count;
+            offset = g.Offset;
         }
 
         public override void RenderNode()
         {
-            if (ioffset < 0) return;
-            if (vbo.VBO.Disposed || vbo.IBO.Disposed) return;
             // Draw submesh
-            GL.DrawElements(BeginMode.Triangles, tricount * Vector3i.Size, DrawElementsType.UnsignedShort, ioffset);
+            GL.DrawElements(BeginMode.Triangles, count, DrawElementsType.UnsignedShort, offset);
         }
     }
 }

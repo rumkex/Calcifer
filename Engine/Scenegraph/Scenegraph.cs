@@ -90,43 +90,29 @@ namespace Calcifer.Engine.Scenegraph
             var physicsComponent = entity.GetComponent<PhysicsComponent>();
             var transformComponent = entity.GetComponent<TransformComponent>();
             var meshData = entity.GetComponent<MeshData>();
-            if (meshData == null)
-            {
-                return;
-            }
+            if (meshData == null) return;
             SceneNode head = new TransformNode(parent, transformComponent ?? new TransformComponent());
-            var animationComponent = entity.GetComponent<AnimationComponent>();
+            var animationComponent = entity.GetComponent(default(AnimationComponent), true);
             if (animationComponent != null) head = new AnimationNode(head, animationComponent);
-            var icount = 0;
-            var vcount = 0;
-            var writeQueue = new Queue<Action<VBONode>>();
-            foreach (var matGroup in
-                from g in meshData.Submeshes
-                group g by g.Material)
+
+            var tri = meshData.Submeshes[0].Triangles;
+            var vert = meshData.Submeshes[0].Vertices;
+            var vbo = new VertexBuffer(vert.Length*SkinnedVertex.Size, BufferTarget.ArrayBuffer,
+                                       BufferUsageHint.StaticDraw);
+            var ibo = new VertexBuffer(tri.Length*Vector3i.Size, BufferTarget.ElementArrayBuffer,
+                                       BufferUsageHint.StaticDraw);
+            vbo.Write(0, vert);
+            ibo.Write(0, tri);
+            var vboNode = new VBONode(head, vbo, ibo);
+            foreach (var matGroup in 
+                from g in meshData.Submeshes group g by g.Material)
             {
                 foreach (var geometry in matGroup)
                 {
-                    for (var i = 0; i < geometry.Triangles.Length; i++)
-                    {
-                        geometry.Triangles[i].X = (ushort) (geometry.Triangles[i].X + vcount);
-                        geometry.Triangles[i].Y = (ushort) (geometry.Triangles[i].Y + vcount);
-                        geometry.Triangles[i].Z = (ushort) (geometry.Triangles[i].Z + vcount);
-                    }
-                    var geom = geometry;
-                    var vc = vcount;
-                    var ic = icount;
                     var mat = matGroup.Key;
-                    writeQueue.Enqueue(v => new SubmeshNode(new MaterialNode(v, mat), v, geom, vc * SkinnedVertex.Size, ic * 4));
-                    vcount += geometry.Vertices.Length;
-                    icount += geometry.Triangles.Length * 3;
+                    new SubmeshNode(new MaterialNode(vboNode, mat), geometry);
                 }
             }
-            var vbo = new VertexBuffer(vcount * SkinnedVertex.Size, BufferTarget.ArrayBuffer, BufferUsageHint.StaticDraw)
-            { ElementCount = vcount };
-            var ibo = new VertexBuffer(icount * 4, BufferTarget.ElementArrayBuffer, BufferUsageHint.StaticDraw)
-            { ElementCount = icount };
-            var obj = new VBONode(head, vbo, ibo);
-            foreach (var action in writeQueue) action(obj);
         }
     }
 }

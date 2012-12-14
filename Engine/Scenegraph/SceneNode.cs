@@ -24,7 +24,7 @@ namespace Calcifer.Engine.Scenegraph
             pass.Visit(this);
         }
 
-        public void VisitChildren(RenderPass pass)
+        public virtual void VisitChildren(RenderPass pass)
         {
             foreach (var node in Children) node.AcceptPass(pass);
         }

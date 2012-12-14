@@ -13,7 +13,6 @@ namespace Calcifer.Engine.Graphics.Buffers
         public BufferUsageHint Usage { get; private set; }
 
         public int Size { get; private set; }
-        public int ElementCount { get; set; }
 
         public VertexBuffer(int size, BufferTarget target, BufferUsageHint usage)
         {
@@ -27,7 +26,7 @@ namespace Calcifer.Engine.Graphics.Buffers
             GL.BindBuffer(Target, id);
             ID = id;
             // Allocate space
-            GL.BufferData(Target, (IntPtr)size, IntPtr.Zero, BufferUsageHint.StaticDraw);
+            GL.BufferData(Target, (IntPtr)size, IntPtr.Zero, BufferUsageHint.DynamicDraw);
             Size = size;
         }
 

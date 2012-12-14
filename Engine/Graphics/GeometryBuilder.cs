@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Calcifer.Engine.Graphics.Primitives;
 using OpenTK;
 
@@ -6,33 +7,31 @@ namespace Calcifer.Engine.Graphics
 {
     public class GeometryBuilder
     {
-        private List<Geometry> submeshes; 
-        private readonly Dictionary<Vector3, LinkedList<int>> vertindex;
+        private readonly List<Geometry> submeshes;
         private readonly List<SkinnedVertex> vertices;
+        private readonly Dictionary<Vector3, LinkedList<int>> vertindex;
         private readonly List<Vector3i> triangles;
         private readonly int[] indices;
-
+        
         public GeometryBuilder()
         {
-            submeshes = new List<Geometry>();
+            submeshes = new List<Geometry> {new Geometry()};
             vertindex = new Dictionary<Vector3, LinkedList<int>>();
-            indices = new int[4];
+            indices = new int[3];
             vertices = new List<SkinnedVertex>();
             triangles = new List<Vector3i>();
         }
-
-        public Material Material { get; set; }
-
+        
         public void Add(IList<SkinnedVertex> v, bool generateNormals)
         {
-            if (v.Count > 4) throw new EngineException("Trying to build a face with more than 4 vertices.");
-            if (v.Count == 4)
+            if (v.Count < 3) throw new EngineException("Trying to build a face with less than 3 vertices.");
+            if (v.Count >= 4)
             {
-                Add(new[] { v[0], v[1], v[2] }, generateNormals);
-                Add(new[] { v[2], v[3], v[0] }, generateNormals);
+                Add(v.Take(3).ToList(), generateNormals);
+                Add(v.Skip(2).Concat(new[] {v[0]}).ToList(), generateNormals);
                 return;
             }
-            for (int i = 0; i < v.Count; i++ )
+            for (var i = 0; i < v.Count; i++ )
             {
                 var vert = v[i];
                 if (generateNormals)
@@ -42,30 +41,23 @@ namespace Calcifer.Engine.Graphics
                     var right = v[(i + 1) % v.Count].Position - v[i].Position;
                     vert.Normal = Vector3.Normalize(Vector3.Cross(left, right));
                 }
-                if (!vertindex.ContainsKey(vert.Position))
+                if (!vertindex.ContainsKey(vert.Position)) vertindex.Add(vert.Position, new LinkedList<int>());
+                var found = false;
+                foreach (var index in vertindex[vert.Position])
                 {
-                    vertindex.Add(vert.Position, new LinkedList<int>());
-                    vertindex[vert.Position].AddLast(vertices.Count);
-                    indices[i] = vertices.Count;
-                    vertices.Add(vert);
-                }
-                else
-                {
-                    var found = false;
-                    foreach (var index in vertindex[vert.Position])
-                        if (Equals(vertices[index], vert))
-                        {
-                            found = true;
-                            indices[i] = index;
-                        }
-                    if (!found)
+                    if (Equals(vertices[index], vert))
                     {
-                        indices[i] = vertices.Count;
-                        vertindex[vert.Position].AddLast(vertices.Count);
-                        vertices.Add(vert);
+                        found = true;
+                        indices[i] = index;
+                        break;
                     }
                 }
+                if (found) continue;
+                indices[i] = vertices.Count;
+                vertindex[vert.Position].AddLast(vertices.Count);
+                vertices.Add(vert);
             }
+            submeshes.Last().Count += v.Count;
             triangles.Add(new Vector3i(indices));
         }
 
@@ -81,21 +73,33 @@ namespace Calcifer.Engine.Graphics
 
         public IEnumerable<Geometry> GetGeometry()
         {
-            NextGeometry();
-            return submeshes;
+            var tri = triangles.ToArray();
+            var vert = vertices.ToArray();
+            foreach (var g in submeshes)
+            {
+                g.Triangles = tri;
+                g.Vertices = vert;
+                if (g.Count > 0) yield return g;
+            }
         }
 
         public void NextGeometry()
         {
+            var current = submeshes.Last();
+            if (current.Count == 0) return;
             var g = new Geometry
                         {
-                            Triangles = triangles.ToArray(),
-                            Vertices = vertices.ToArray(),
-                            Material = Material
+                            Material = current.Material,
+                            Offset = triangles.Count * Vector3i.Size,
+                            Count = 0
                         };
             submeshes.Add(g);
-            vertices.Clear();
-            triangles.Clear();
+        }
+
+        public Material Material
+        {
+            get { return submeshes.Last().Material; }
+            set { submeshes.Last().Material = value; }
         }
     }
 }

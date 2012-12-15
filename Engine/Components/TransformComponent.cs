@@ -1,4 +1,3 @@
-using System.ComponentModel.Design;
 using Calcifer.Engine.Graphics.Primitives;
 using ComponentKit.Model;
 using OpenTK;
@@ -10,7 +9,6 @@ namespace Calcifer.Engine.Components
 	{
 		private ScalableTransform transform;
 		private Func<ScalableTransform> transformCallback;
-	    public event EventHandler<ComponentEventArgs> TransformChanged;
 
 		public ScalableTransform Transform
 		{
@@ -45,7 +43,7 @@ namespace Calcifer.Engine.Components
 		{
 			get
 			{
-				return this.Transform.Scale;
+				return transform.Scale;
 			}
 			set
 			{
@@ -56,21 +54,14 @@ namespace Calcifer.Engine.Components
 		{
 			get
 			{
-				return this.Transform.Matrix;
+				return Matrix4.Scale(Scale) * Matrix4.Rotate(Rotation) * Matrix4.CreateTranslation(Translation);
 			}
 		}
 		public TransformComponent()
 		{
 			this.transform = new ScalableTransform(Quaternion.Identity, Vector3.Zero);
 		}
-		protected virtual void OnTransformChanged(ComponentEventArgs e)
-		{
-			EventHandler<ComponentEventArgs> transformChanged = this.TransformChanged;
-			if (transformChanged != null)
-			{
-				transformChanged(this, e);
-			}
-		}
+
 		public void Bind(Func<ScalableTransform> callback)
 		{
 			this.transformCallback = callback;

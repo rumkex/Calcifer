@@ -45,7 +45,7 @@ namespace Calcifer.Engine.Graphics.Animation
         {
             get
             {
-                return this.pose;
+				return current != null ? pose: restPose;
             }
         }
         public BlendAnimationController(Pose rest)

@@ -37,6 +37,10 @@ namespace Calcifer.Engine.Graphics
         {
             this.Visit((SceneNode)node);
         }
+        public virtual void Visit(SubmeshNode node)
+        {
+            this.Visit((SceneNode)node);
+        }
         public virtual void BeginRender()
         {
         }
@@ -57,12 +61,13 @@ namespace Calcifer.Engine.Graphics
 		}
 		public override void BeginRender()
 		{
-			Matrix4 matrix = this.camera.Matrix;
+			Matrix4 matrix =  Matrix4.Rotate(Quaternion.FromAxisAngle(Vector3.UnitX, -MathHelper.PiOver2)) * camera.Matrix;
 			GL.LoadMatrix(ref matrix);
-			foreach (LightNode current in LightNode.Inventory)
+			foreach (var current in LightNode.Inventory)
 			{
 				current.Set();
 			}
+			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			this.shader.Enable();
 		}
 		public override void EndRender()
@@ -90,6 +95,7 @@ namespace Calcifer.Engine.Graphics
 			node.VisitChildren(this);
 			this.shader.SetUniform("animated", 0f);
 		}
+
 		public override void Visit(VBONode node)
 		{
 			int vPos = this.shader.GetAttribLocation("inVertex");
@@ -104,9 +110,9 @@ namespace Calcifer.Engine.Graphics
 			GL.EnableVertexAttribArray(bonesPos);
 			node.BeginRender();
 			GL.VertexAttribPointer(vPos, 3, VertexAttribPointerType.Float, false, SkinnedVertex.Size, 0);
-            GL.VertexAttribPointer(nPos, 3, VertexAttribPointerType.Float, true, SkinnedVertex.Size, (IntPtr)12);
-            GL.VertexAttribPointer(tcPos, 2, VertexAttribPointerType.Float, false, SkinnedVertex.Size, (IntPtr)24);
-            GL.VertexAttribPointer(weightPos, 4, VertexAttribPointerType.Float, false, SkinnedVertex.Size, (IntPtr)32);
+			GL.VertexAttribPointer(nPos, 3, VertexAttribPointerType.Float, true, SkinnedVertex.Size, (IntPtr)12);
+			GL.VertexAttribPointer(tcPos, 2, VertexAttribPointerType.Float, false, SkinnedVertex.Size, (IntPtr)24);
+			GL.VertexAttribPointer(weightPos, 4, VertexAttribPointerType.Float, false, SkinnedVertex.Size, (IntPtr)32);
 			GL.VertexAttribPointer(bonesPos, 4, VertexAttribPointerType.Float, false, SkinnedVertex.Size, (IntPtr)48);
 			node.VisitChildren(this);
 			node.EndRender();

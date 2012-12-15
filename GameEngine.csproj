@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\Audio\Sound.cs" />
+    <Compile Include="Engine\Components\CameraComponent.cs" />
     <Compile Include="Engine\Components\KeyboardControllerComponent.cs" />
     <Compile Include="Engine\Components\TransformComponent.cs" />
     <Compile Include="Engine\Components\IUpdateable.cs" />

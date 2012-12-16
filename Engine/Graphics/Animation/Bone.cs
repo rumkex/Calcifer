@@ -47,6 +47,10 @@ namespace Calcifer.Engine.Graphics.Animation
         public Pose(int count)
         {
             bones = new Bone[count];
+	        for (int i = 0; i < count; i++)
+	        {
+				bones[i] = new Bone(-1, i, "") { WorldTransform = Transform.Identity };
+	        }
         }
 
         public Pose(Pose self)

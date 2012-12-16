@@ -7,7 +7,8 @@ namespace Calcifer.Engine.Graphics.Animation
     public class BlendAnimationController : AnimationComponent
     {
         private Pose pose;
-        private Pose restPose;
+		private Pose basePose;
+		private Pose invRestPose;
         private Dictionary<string, AnimationData> anims;
         private Sequence current;
         private Sequence backup;
@@ -45,12 +46,14 @@ namespace Calcifer.Engine.Graphics.Animation
         {
             get
             {
-				return current != null ? pose: restPose;
+				return pose;
             }
         }
         public BlendAnimationController(Pose rest)
         {
-            this.restPose = rest;
+			invRestPose = new Pose(rest);
+			for (int id = 0; id < rest.BoneCount; id++)
+				invRestPose.SetWorldTransform(id, rest[id].WorldTransform.Invert());
             this.pose = new Pose(rest.BoneCount);
             this.anims = new Dictionary<string, AnimationData>();
         }
@@ -85,20 +88,17 @@ namespace Calcifer.Engine.Graphics.Animation
                 this.backup.Update((float)time);
             }
             this.pose = new Pose(this.current.Pose);
-            for (int i = 0; i < this.pose.BoneCount; i++)
-            {
-                if (this.backup != null && this.fadeLeft > 0f)
-                {
+
+			if (this.backup != null && this.fadeLeft > 0f)
+				for (int i = 0; i < this.pose.BoneCount; i++)
                     this.pose.SetTransform(i, Transform.Interpolate(this.current.Pose[i].Transform, this.backup.Pose[i].Transform, 1f - this.fadeLeft / this.fadeTime));
-                }
-            }
             this.pose.CalculateWorld();
             if (this.backup != null && this.fadeLeft <= 0.01f)
             {
                 this.current = this.backup;
                 this.backup = null;
             }
-            this.pose.MergeWith(this.restPose);
+            this.pose.MergeWith(invRestPose);
         }
     }
 }

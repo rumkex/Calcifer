@@ -9,38 +9,37 @@ namespace Calcifer.Engine.Scripting
         {
         }
     }
+
     public class LuaComponent : ScriptingComponent
     {
-        public LuaService Service { get; set; }
         private float wait;
-        public string Source
-        {
-            get;
-            private set;
-        }
-        public bool IsWaiting
-        {
-            get
-            {
-                return this.wait < 0f;
-            }
-        }
+
         public LuaComponent(string code)
         {
-            this.Source = code;
+            Source = code;
+        }
+
+        public LuaService Service { get; set; }
+
+        public string Source { get; private set; }
+
+        public bool IsWaiting
+        {
+            get { return wait < 0f; }
         }
 
         public override void Update(double dt)
         {
-            if (this.IsWaiting)
+            if (IsWaiting)
             {
-                this.wait -= (float)dt;
+                wait -= (float) dt;
             }
             Service.ExecuteScript(this);
         }
+
         public void Wait(float seconds)
         {
-            this.wait = seconds;
+            wait = seconds;
         }
     }
 }

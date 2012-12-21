@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Graphics.Animation;
@@ -7,24 +8,23 @@ using Calcifer.Utilities.Logging;
 using ComponentKit;
 using ComponentKit.Model;
 using System;
+using LuaInterface.Exceptions;
 using OpenTK;
 using OpenTK.Input;
-using SharpLua;
+using LuaInterface;
 
 namespace Calcifer.Engine.Scripting
 {
-    public class LuaService : Component
+    public class LuaService
     {
-        private List<Delegate> cache; 
-        private LuaInterface lua;
+        private Lua lua;
         private LuaComponent currentScript;
         private HashSet<string> collisions;
         private Random rand;
         private int lights;
         public LuaService()
         {
-            cache = new List<Delegate>();
-            lua = LuaRuntime.GetLua();
+            lua = new Lua();
             rand = new Random();
             collisions = new HashSet<string>();
             InitializeCore();
@@ -47,14 +47,28 @@ namespace Calcifer.Engine.Scripting
         }
 
         private bool halt;
+	    private HashSet<LuaComponent> blacklist = new HashSet<LuaComponent>(); 
         public void ExecuteScript(LuaComponent script)
         {
-            if (halt) return;
-            currentScript = script;
+            if (halt)
+                return;
+	        if (blacklist.Contains(script))
+				return;
+			currentScript = script;
             lua["this"] = currentScript.Record.Name;
+	        var watch = new Stopwatch();
             try
             {
+	            var name = currentScript.Record.Name;
+				watch.Start();
                 lua.DoString(script.Source);
+	            watch.Stop();
+	            var elapsed = watch.Elapsed.TotalMilliseconds;
+				if (elapsed > 15)
+				{
+					Log.WriteLine(LogLevel.Warning, "{0} script: took {1}", name, elapsed);
+					//blacklist.Add(script);
+				}
             }
             catch (LuaException ex)
             {
@@ -64,13 +78,19 @@ namespace Calcifer.Engine.Scripting
         }
         private void InitializeCore()
         {
-            lua.RegisterFunction("log", this, new Action<string>(s => Log.WriteLine(LogLevel.Info, s)).Method);
+			//lua.RegisterFunction("log", this, new Action<string>(s => Log.WriteLine(LogLevel.Info, s)).Method);
+			lua.RegisterFunction("log", this, new Action<string>(s => { }).Method);
             lua.RegisterFunction("lighting", this, new Action<int>(i => lights = i).Method);
             lua.RegisterFunction("create_valid_object_name", this, new Func<string>(() => Guid.NewGuid().ToString()).Method);
             lua.RegisterFunction("location", this, new Func<string>(() => "There ain't no way I'm tellin' ya that, punk").Method);
             lua.RegisterFunction("get_name", this, new Func<string>(() => currentScript.Record.Name).Method);
             lua.RegisterFunction("append_object", this, new Action<string, string, string>(AddObject).Method);
-            lua.RegisterFunction("remove_object", this, new Action<string>(name => Record.Registry.Drop(Entity.Find(name))).Method);
+            lua.RegisterFunction("remove_object", this, new Action<string>(name =>
+                                                                               {
+                                                                                   var r = currentScript.Record.Registry;
+                                                                                   r.Drop(Entity.Find(name));
+                                                                                   r.Synchronize();
+                                                                               }).Method);
             lua.RegisterFunction("has_waited", this, new Func<string, bool>(s => !currentScript.IsWaiting).Method);
             lua.RegisterFunction("wait", this, new Action<string, int>((name, count) => currentScript.Wait(count / 60f)).Method);
         }
@@ -101,11 +121,11 @@ namespace Calcifer.Engine.Scripting
         private void InitializeNavigation()
         {
             lua.RegisterFunction("get_pos_x", this, new Func<string, float>(name => Get<TransformComponent>(name).Translation.X).Method);
-            lua.RegisterFunction("get_pos_y", this, new Func<string, float>(name => Get<TransformComponent>(name).Translation.Z).Method);
-            lua.RegisterFunction("get_pos_z", this, new Func<string, float>(name => Get<TransformComponent>(name).Translation.Y).Method);
+            lua.RegisterFunction("get_pos_y", this, new Func<string, float>(name => Get<TransformComponent>(name).Translation.Y).Method);
+            lua.RegisterFunction("get_pos_z", this, new Func<string, float>(name => Get<TransformComponent>(name).Translation.Z).Method);
             lua.RegisterFunction("get_rot_x", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().X * 180f / 3.14159274f).Method);
-            lua.RegisterFunction("get_rot_y", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().Z * 180f / 3.14159274f).Method);
-            lua.RegisterFunction("get_rot_z", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().Y * 180f / 3.14159274f).Method);
+            lua.RegisterFunction("get_rot_y", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().Y * 180f / 3.14159274f).Method);
+            lua.RegisterFunction("get_rot_z", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().Z * 180f / 3.14159274f).Method);
             lua.RegisterFunction("angle", this, new Func<string, string, double>(GetAngle).Method);
             lua.RegisterFunction("distance", this, new Func<string, string, double>((name1, name2) => Distance(name1, name2)).Method);
             lua.RegisterFunction("set_pos", this, new Action<string, float, float, float>((name, x, y, z) => Get<TransformComponent>(name).Translation = new Vector3(x, y, z)).Method);
@@ -130,11 +150,12 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("collision_between", this, new Func<string, string, bool>((name1, name2) => false).Method);
             lua.RegisterFunction("set_gravity", this,  new Action<string, float>((name, value) => { }).Method);
             lua.RegisterFunction("set_restitution", this, new Action<string, float>((name, value) => { }).Method);
+            lua.RegisterFunction("get_floor_material", this, new Func<string, string>(name => "").Method);
         }
 
         private void InitializeAnimation()
         {
-            lua.RegisterFunction("set_anim", this,  new Action<string, string>((name, anim) => GetAnimationController(name).Start(anim, false)).Method);
+            lua.RegisterFunction("set_anim", this,  new Action<string, string>((name, anim) => GetAnimationController(name).Start(anim, true)).Method);
             lua.RegisterFunction("get_anim", this,  new Func<string, string>(name => Get<AnimationComponent>(name).Name).Method);
             lua.RegisterFunction("get_frame", this,  new Func<string, float>(name =>
                                                           {
@@ -163,7 +184,7 @@ namespace Calcifer.Engine.Scripting
 
         private void InitializeText()
         {
-            lua.RegisterFunction("get_choice", this, new Func<string>(() => "").Method);
+            lua.RegisterFunction("get_choice", this, new Func<string>(() => "choice").Method);
             lua.RegisterFunction("set_choices", this, GetType().GetMethod("SetChoices"));
         }
 

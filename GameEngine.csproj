@@ -58,11 +58,11 @@
     <Reference Include="Jitter">
       <HintPath>..\References\Jitter.dll</HintPath>
     </Reference>
+    <Reference Include="LuaInterface">
+      <HintPath>..\References\LuaInterface.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK">
       <HintPath>..\References\OpenTK.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpLua">
-      <HintPath>..\References\SharpLua.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -7,7 +7,6 @@ namespace Calcifer.Engine.Graphics.Animation
     public class BlendAnimationController : AnimationComponent
     {
         private Pose pose;
-		private Pose basePose;
 		private Pose invRestPose;
         private Dictionary<string, AnimationData> anims;
         private Sequence current;

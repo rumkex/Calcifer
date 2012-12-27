@@ -18,6 +18,7 @@ namespace Calcifer.Engine.Scripting
     public class LuaService
     {
         private Lua lua;
+		private Dictionary<LuaComponent, LuaFunction> cache; 
         private LuaComponent currentScript;
         private HashSet<string> collisions;
         private Random rand;
@@ -25,6 +26,7 @@ namespace Calcifer.Engine.Scripting
         public LuaService()
         {
             lua = new Lua();
+			cache = new Dictionary<LuaComponent, LuaFunction>();
             rand = new Random();
             collisions = new HashSet<string>();
             InitializeCore();
@@ -47,13 +49,12 @@ namespace Calcifer.Engine.Scripting
         }
 
         private bool halt;
-	    private HashSet<LuaComponent> blacklist = new HashSet<LuaComponent>(); 
         public void ExecuteScript(LuaComponent script)
         {
             if (halt)
                 return;
-	        if (blacklist.Contains(script))
-				return;
+	        if (!cache.ContainsKey(script))
+		        cache[script] = lua.LoadString(script.Source, script.Record.Name.Replace(".", "")+".update");
 			currentScript = script;
             lua["this"] = currentScript.Record.Name;
 	        var watch = new Stopwatch();
@@ -61,7 +62,7 @@ namespace Calcifer.Engine.Scripting
             {
 	            var name = currentScript.Record.Name;
 				watch.Start();
-                lua.DoString(script.Source);
+	            cache[script].Call();
 	            watch.Stop();
 	            var elapsed = watch.Elapsed.TotalMilliseconds;
 				if (elapsed > 15)

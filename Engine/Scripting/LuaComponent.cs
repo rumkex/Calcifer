@@ -3,14 +3,7 @@ using ComponentKit.Model;
 
 namespace Calcifer.Engine.Scripting
 {
-    public abstract class ScriptingComponent : Component, IUpdateable
-    {
-        public virtual void Update(double dt)
-        {
-        }
-    }
-
-    public class LuaComponent : ScriptingComponent
+    public class LuaComponent : Component, IUpdateable
     {
         private float wait;
 
@@ -28,7 +21,7 @@ namespace Calcifer.Engine.Scripting
             get { return wait < 0f; }
         }
 
-        public override void Update(double dt)
+        public void Update(double dt)
         {
             if (IsWaiting)
             {

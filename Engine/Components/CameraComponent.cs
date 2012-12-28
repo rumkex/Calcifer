@@ -19,8 +19,8 @@ namespace Calcifer.Engine.Components
             {
                 var eye = transform.Translation;
                 var target = eye + Vector3.Transform(Vector3.UnitX, transform.Rotation);
-                var up = Vector3.Transform(Vector3.UnitY, transform.Rotation);
-                return Matrix4.LookAt(eye, target, Vector3.UnitY);
+                var up = Vector3.Transform(Vector3.UnitZ, transform.Rotation);
+                return Matrix4.LookAt(eye, target, Vector3.UnitZ);
             } 
         }
 

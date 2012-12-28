@@ -61,12 +61,10 @@ namespace Calcifer.Engine.Graphics
 		}
 		public override void BeginRender()
 		{
-			Matrix4 matrix =  Matrix4.Rotate(Quaternion.FromAxisAngle(Vector3.UnitX, -MathHelper.PiOver2)) * camera.Matrix;
-			GL.LoadMatrix(ref matrix);
-			foreach (var current in LightNode.Inventory)
-			{
-				current.Set();
-			}
+			var mat = camera.Matrix;
+			GL.MatrixMode(MatrixMode.Modelview);
+			GL.LoadMatrix(ref mat);
+			foreach (var light in LightNode.Inventory) light.Set();
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			this.shader.Enable();
 		}

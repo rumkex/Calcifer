@@ -1,3 +1,4 @@
+using Calcifer.Utilities;
 using ComponentKit.Model;
 using OpenTK;
 using OpenTK.Input;
@@ -8,8 +9,9 @@ namespace Calcifer.Engine.Components
     {
         [RequireComponent] private TransformComponent transform;
         private MouseState mouseState;
-
-        public void Update(double dt)
+	    private float yaw, pitch;
+		
+	    public void Update(double dt)
         {
             var current = Mouse.GetState();
             if (mouseState != current)
@@ -18,28 +20,34 @@ namespace Calcifer.Engine.Components
                 int xdelta = current.X - mouseState.X;
                 int ydelta = current.Y - mouseState.Y;
                 int zdelta = current.Wheel - mouseState.Wheel;
-                var currentY = Vector3.Transform(Vector3.UnitY, transform.Rotation);
-                var currentZ = Vector3.Transform(Vector3.UnitZ, transform.Rotation);
-                //var rotY = Quaternion.FromAxisAngle(currentY, (float)dt * -0.1f * xdelta);
-                //var rotZ = Quaternion.FromAxisAngle(currentZ, (float)dt * -0.1f * ydelta);
-                var rotY = Quaternion.FromAxisAngle(Vector3.UnitY, (float)dt * -0.1f * xdelta);
-                var rotZ = Quaternion.FromAxisAngle(Vector3.UnitZ, (float)dt * -0.1f * ydelta);
-                transform.Rotation = transform.Rotation*rotY*rotZ;
+
+				yaw += (float)dt * 0.02f * -xdelta;
+				pitch += (float)dt * 0.08f * ydelta;
+				pitch = MathUtils.Clamp(pitch, -MathHelper.PiOver2 + .01f, MathHelper.PiOver2 - .01f);
+
+	            transform.Rotation = Quaternion.FromAxisAngle(Vector3.UnitZ, yaw)*
+	                                 Quaternion.FromAxisAngle(Vector3.UnitY, pitch);
             }
             mouseState = current;
 
+	        var forward = Vector3.Transform(Vector3.UnitX, transform.Rotation);
+	        var right = Vector3.Normalize(Vector3.Cross(forward, Vector3.UnitZ));
+
             var targetVelocity = Vector3.Zero;
-            if (Keyboard.GetState()[Key.W])
-                targetVelocity += Vector3.UnitX;
+	        if (Keyboard.GetState()[Key.W])
+		        targetVelocity += forward;
             if (Keyboard.GetState()[Key.S])
-                targetVelocity -= Vector3.UnitX;
+                targetVelocity -= forward;
             if (Keyboard.GetState()[Key.A])
-                targetVelocity -= Vector3.UnitZ;
+                targetVelocity -= right;
             if (Keyboard.GetState()[Key.D])
-                targetVelocity += Vector3.UnitZ;
-            if (targetVelocity != Vector3.Zero) targetVelocity.Normalize();
-            var delta = (float)dt * 2.0f * Vector3.Transform(targetVelocity, transform.Rotation);
-            transform.Translation += delta;
+				targetVelocity += right;
+            if (targetVelocity != Vector3.Zero)
+			{
+				targetVelocity.Normalize();
+				var delta = (float) dt*2.0f*targetVelocity;
+				transform.Translation += delta;
+            }
         }
     }
 }

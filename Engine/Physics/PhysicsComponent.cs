@@ -1,4 +1,5 @@
-﻿using Calcifer.Engine.Components;
+﻿using System;
+using Calcifer.Engine.Components;
 using Calcifer.Engine.Graphics.Primitives;
 using Calcifer.Utilities;
 using ComponentKit;
@@ -10,16 +11,30 @@ using Jitter.LinearMath;
 
 namespace Calcifer.Engine.Physics
 {
-    public class PhysicsComponent : DependencyComponent
+	[Flags]
+	public enum BodyTags
+	{
+		None = 0,
+		Ghost = 1,
+	}
+
+	public class PhysicsComponent : DependencyComponent
     {
         [RequireComponent] private TransformComponent transform = null;
+
+		public PhysicsComponent()
+		{
+			Body = new RigidBody(new SphereShape(0.0f))
+			{
+				IsStatic = true
+			};
+		}
 
         public PhysicsComponent(Shape shape, bool isStatic)
         {
             Body = new RigidBody(shape)
                        {
-                           IsStatic = isStatic,
-                           EnableDebugDraw = true
+                           IsStatic = isStatic
                        };
         }
 
@@ -27,7 +42,7 @@ namespace Calcifer.Engine.Physics
 
         public World World { get; set; }
 
-        protected override void OnAdded(ComponentStateEventArgs registrationArgs)
+	    protected override void OnAdded(ComponentStateEventArgs registrationArgs)
         {
             base.OnAdded(registrationArgs);
             Body.Orientation = JMatrix.CreateFromQuaternion(transform.Rotation.ToQuaternion());

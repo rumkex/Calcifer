@@ -56,6 +56,11 @@ namespace Calcifer.Engine.Scenery
 				return;
 			}
 			this.Type = reader.GetAttribute("type");
+			if (reader.IsEmptyElement)
+			{
+				reader.Read();
+				return;
+			}
 			if (reader.ReadToDescendant("param"))
 			{
 				while (reader.MoveToContent() == XmlNodeType.Element && reader.LocalName == "param")

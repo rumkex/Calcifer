@@ -13,6 +13,7 @@ using Jitter;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 namespace Calcifer.Engine.Scenegraph
@@ -40,6 +41,8 @@ namespace Calcifer.Engine.Scenegraph
     {
         private class DebugDrawNode : SceneNode
         {
+			private static GLDrawer drawer = new GLDrawer();
+			
             private RigidBody body;
             public DebugDrawNode(SceneNode parent, RigidBody b)
                 : base(parent)
@@ -48,10 +51,23 @@ namespace Calcifer.Engine.Scenegraph
             }
             public override void RenderNode()
             {
+	            if (!RenderHints<bool>.GetHint("debugPhysics")) return;
+				Shader.Current.Disable();
+				GL.Disable(EnableCap.Texture2D);
+				GL.Disable(EnableCap.Lighting);
+				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+				GL.Begin(BeginMode.Triangles);
+				GL.Color4(Color4.White);
+				body.DebugDraw(drawer);
+				GL.End();
+				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+				GL.Enable(EnableCap.Texture2D);
+				GL.Enable(EnableCap.Lighting);
+				Shader.Current.Enable();
             }
         }
 
-        internal class GLDrawer : IDebugDrawer
+	    private class GLDrawer : IDebugDrawer
         {
             public void DrawLine(JVector start, JVector end)
             {
@@ -87,14 +103,15 @@ namespace Calcifer.Engine.Scenegraph
 
         public void AddModelFromEntity(SceneNode parent, IEntityRecord entity)
         {
-            var physicsComponent = entity.GetComponent<PhysicsComponent>();
+			var physicsComponent = entity.GetComponent<PhysicsComponent>();
+			if (physicsComponent != null) new DebugDrawNode(root, physicsComponent.Body);
+
             var transformComponent = entity.GetComponent<TransformComponent>();
-            var meshData = entity.GetComponent<MeshData>();
-            if (meshData == null) return;
+			var meshData = entity.GetComponent<MeshData>();
+			if (meshData == null) return;
             SceneNode head = new TransformNode(parent, transformComponent ?? new TransformComponent());
             var animationComponent = entity.GetComponent(default(AnimationComponent), true);
             if (animationComponent != null) head = new AnimationNode(head, animationComponent);
-
             var tri = meshData.Submeshes[0].Triangles;
             var vert = meshData.Submeshes[0].Vertices;
             var vbo = new VertexBuffer(vert.Length*SkinnedVertex.Size, BufferTarget.ArrayBuffer,

@@ -5,11 +5,6 @@ namespace Calcifer.Engine.Scripting
 {
     public class LuaStorageComponent : Component
     {
-        public bool CanWalk
-        {
-            get;
-            set;
-        }
         public bool CanPush
         {
             get;

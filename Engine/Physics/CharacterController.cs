@@ -8,21 +8,22 @@ namespace Calcifer.Engine.Physics
 {
     public class CharacterController : Constraint
     {
-        private readonly float feetPosition;
         private bool canJump;
         private JVector deltaVelocity = JVector.Zero;
 
         public CharacterController(World world, RigidBody body) : base(body, null)
         {
             World = world;
-            var down = JVector.Down;
-            JVector ray;
+			JMatrix orient = body.Orientation;
+            JVector down = JVector.Forward, ray;
+			JVector.TransposedTransform(ref down, ref orient, out down);
             body.Shape.SupportMapping(ref down, out ray);
-            feetPosition = ray*JVector.Down;
-            JumpVelocity = 2f;
+			FeetPosition = ray * down;
+            JumpVelocity = 5f;
         }
 
-        public float JumpVelocity { get; set; }
+		public float FeetPosition { get; private set; }
+	    public float JumpVelocity { get; set; }
         public JVector TargetVelocity { get; set; }
         public World World { get; private set; }
         public bool TryJump { get; set; }
@@ -33,34 +34,33 @@ namespace Calcifer.Engine.Physics
             RigidBody body;
             JVector normal;
             float depth;
-            bool flag = World.CollisionSystem.Raycast(Body1.Position + JVector.Down*(feetPosition - 0.1f),
-                                                      JVector.Down, (b, n, f) => b != Body1,
+            bool flag = World.CollisionSystem.Raycast(Body1.Position + JVector.Forward*(FeetPosition - 0.1f),
+                                                      JVector.Forward, (b, n, f) => b != Body1,
                                                       out body, out normal, out depth);
             BodyWalkingOn = ((!flag || depth > 0.2f) ? null : body);
-            canJump = (flag && depth <= 0.2f && Body1.LinearVelocity.Y < JumpVelocity && TryJump);
-            TryJump = false;
+            canJump = (BodyWalkingOn != null) && Body1.LinearVelocity.Z < JumpVelocity && TryJump;
         }
 
         public override void Iterate()
         {
             deltaVelocity = TargetVelocity - Body1.LinearVelocity;
-            deltaVelocity.Y = 0f;
-            deltaVelocity *= ((!canJump) ? 0.01f : 0.5f);
+            deltaVelocity.Z = 0f;
+            deltaVelocity *= (BodyWalkingOn == null) ? 0.01f : 0.2f;
             if (deltaVelocity.LengthSquared() > 0.000001f)
             {
-                Body1.IsActive = true;
                 Body1.ApplyImpulse(deltaVelocity*Body1.Mass);
             }
             if (canJump)
             {
-                Body1.IsActive = true;
-                Body1.ApplyImpulse(JumpVelocity*JVector.Up*base.Body1.Mass);
+                Body1.ApplyImpulse(JumpVelocity*JVector.Backward*base.Body1.Mass);
                 Log.WriteLine(LogLevel.Debug, "JUMP!");
-                if (!BodyWalkingOn.IsStatic)
-                {
-                    BodyWalkingOn.IsActive = true;
-                    BodyWalkingOn.ApplyImpulse(-1f*JumpVelocity*JVector.Up*base.Body1.Mass);
-                }
+				//if (BodyWalkingOn != null && !BodyWalkingOn.IsStatic)
+				//{
+				//	BodyWalkingOn.IsActive = true;
+				//	BodyWalkingOn.ApplyImpulse(-1f*JumpVelocity*JVector.Backward*base.Body1.Mass);
+				//}
+				canJump = false;
+	            TryJump = false;
             }
         }
     }

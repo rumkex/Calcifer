@@ -11,30 +11,21 @@ namespace Calcifer.Engine.Physics
 {
     public class PhysicsData : IResource
     {
-        public struct SubShape
-        {
-            public Material Material;
-            public List<JVector> Positions;
-            public List<TriangleVertexIndices> Triangles;
-
-            public SubShape(IEnumerable<JVector> pos, IEnumerable<TriangleVertexIndices> tri, Material material)
-            {
-                Material = material;
-                Positions = new List<JVector>(pos);
-                Triangles = new List<TriangleVertexIndices>(tri);
-            }
-        }
-
-        public List<SubShape> Shapes { get; private set; }
+        public List<Geometry> Shapes { get; private set; }
 
         public PhysicsData(IEnumerable<Geometry> mesh)
         {
-            Shapes = mesh.Select(g => 
-                                 new SubShape(
-                                     g.Vertices.Select(v => v.Position.ToJVector()),
-                                     g.Triangles.Select(t => new TriangleVertexIndices(t.X, t.Y, t.Z)),
-                                     new Material()
-                                     )).ToList();
+	        Shapes = mesh.ToList();
         }
+
+	    private PhysicsData(PhysicsData source)
+	    {
+		    Shapes = source.Shapes;
+	    }
+
+	    public object Clone()
+	    {
+		    return new PhysicsData(this);
+	    }
     }
 }

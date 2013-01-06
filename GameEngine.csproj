@@ -123,6 +123,7 @@
     <Compile Include="Engine\Physics\PhysicsComponent.cs" />
     <Compile Include="Engine\Physics\PhysicsData.cs" />
     <Compile Include="Engine\Physics\PhysicsService.cs" />
+    <Compile Include="Engine\Physics\TerrainComponent.cs" />
     <Compile Include="Engine\Scenegraph\AnimationNode.cs" />
     <Compile Include="Engine\Scenegraph\BufferBatchNode.cs" />
     <Compile Include="Engine\Scenegraph\Camera.cs" />

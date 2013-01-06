@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Graphics.Animation;
+using Calcifer.Engine.Physics;
 using Calcifer.Utilities;
 using Calcifer.Utilities.Logging;
 using ComponentKit;
@@ -111,12 +112,13 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("key_control", this, new Func<bool>(() => Keyboard.GetState().IsKeyDown(Key.ControlLeft) || Keyboard.GetState().IsKeyDown(Key.ControlRight)).Method);
         }
         private void InitializeProperties()
-        {
+		{
+			lua.RegisterFunction("can_walk", this, new Func<string, bool>(name => Get<MotionComponent>(name).IsOnGround).Method);
+
             lua.RegisterFunction("set_can_push", this, new Action<string, bool>((name, value) => Get<LuaStorageComponent>(name).CanPush = value).Method);
             lua.RegisterFunction("get_can_push", this,  new Func<string, bool>(name => Get<LuaStorageComponent>(name).CanPush).Method);
             lua.RegisterFunction("can_climb", this, new Func<string, bool>(name => Get<LuaStorageComponent>(name).CanClimb).Method);
             lua.RegisterFunction("can_get_over", this, new Func<string, bool>(name => Get<LuaStorageComponent>(name).CanGetOver).Method);
-            lua.RegisterFunction("can_walk", this, new Func<string, bool>(name => Get<LuaStorageComponent>(name).CanWalk).Method);
             lua.RegisterFunction("can_hit_wall", this, new Func<string, bool>(name => Get<LuaStorageComponent>(name).CanHitWall).Method);
         }
         private void InitializeNavigation()
@@ -133,7 +135,7 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("move_step_local", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
             lua.RegisterFunction("move_step", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
             lua.RegisterFunction("rotate_step", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
-            lua.RegisterFunction("jump", this, new Action(() => { }).Method);
+			lua.RegisterFunction("jump", this, new Action<string>(name => Get<MotionComponent>(name).Jump()).Method);
         }
 
         private void InitializeNodes()
@@ -151,7 +153,7 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("collision_between", this, new Func<string, string, bool>((name1, name2) => false).Method);
             lua.RegisterFunction("set_gravity", this,  new Action<string, float>((name, value) => { }).Method);
             lua.RegisterFunction("set_restitution", this, new Action<string, float>((name, value) => { }).Method);
-            lua.RegisterFunction("get_floor_material", this, new Func<string, string>(name => "").Method);
+            lua.RegisterFunction("get_floor_material", this, new Func<string, string>(name => Get<MotionComponent>(name).GetFloorMaterial()).Method);
         }
 
         private void InitializeAnimation()

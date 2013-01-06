@@ -7,17 +7,17 @@ using Calcifer.Engine.Graphics.Buffers;
 
 namespace Calcifer.Engine.Content.Pipeline
 {
-    public class APNGLoader: ResourceLoader<Texture>
+    public class APNGLoader: ResourceLoader<Texture2D>
     {
         public APNGLoader(ContentManager parent) : base(parent)
         {
         }
 
-        public override Texture Load(string name, Stream stream)
+        public override Texture2D Load(string name, Stream stream)
         {
             var png = new APNG();
             png.Load(stream);
-            return new Texture2D();
+            return new Texture2D(Path.GetFileName(name));
         }
 
         public override bool Supports(string name, Stream stream)

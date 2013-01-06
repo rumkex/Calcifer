@@ -14,5 +14,15 @@ namespace Calcifer.Engine.Graphics
         {
             Submeshes = geometry.ToList();
         }
+
+	    private MeshData(MeshData geometry)
+	    {
+		    Submeshes = geometry.Submeshes;
+	    }
+
+	    public object Clone()
+	    {
+		    return new MeshData(this);
+	    }
     }
 }

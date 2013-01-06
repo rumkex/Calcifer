@@ -21,28 +21,29 @@ namespace Calcifer.Engine.Physics
 		{
 			CollidingBodies = new HashSet<RigidBody>();
 			postStepHandler = PostStep;
+			syncHandler = Synchronized;
 		}
 
 		private World.WorldStep postStepHandler;
-		private EventHandler<EventArgs> syncHandler;
-		
+		private EventHandler<ComponentStateEventArgs> syncHandler;
+
 		protected override void OnAdded(ComponentStateEventArgs registrationArgs)
 		{
 			base.OnAdded(registrationArgs);
-			syncHandler = Syncronization;
-			Record.Registry.Synchronized += syncHandler;
 			if (physics.Body.Shape is Multishape) throw new NotSupportedException("Multishapes not supported!");
+			physics.Body.IsStatic = true;
 			physics.Body.BroadphaseTag |= (int)BodyTags.Ghost;
+			physics.Synchronized += syncHandler;
 		}
 
 		protected override void OnRemoved(ComponentStateEventArgs registrationArgs)
 		{
 			base.OnRemoved(registrationArgs);
 			physics.Body.BroadphaseTag ^= (int)BodyTags.Ghost;
-			Record.Registry.Synchronized -= syncHandler;
+			physics.Synchronized -= syncHandler;
 		}
 
-		private void Syncronization(object sender, EventArgs e)
+		private void Synchronized(object sender, ComponentStateEventArgs componentStateEventArgs)
 		{
 			if (IsOutOfSync)
 			{
@@ -54,7 +55,7 @@ namespace Calcifer.Engine.Physics
 			}
 		}
 
-		private void PostStep(float timeStep)
+		public void PostStep(float timeStep)
         {
             foreach (RigidBody body in physics.World.RigidBodies)
             {

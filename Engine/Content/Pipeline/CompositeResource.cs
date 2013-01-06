@@ -9,5 +9,12 @@ namespace Calcifer.Engine.Content.Pipeline
     {
         public CompositeResource(params IResource[] data): base(data)
         {}
+
+	    public object Clone()
+	    {
+			var clone = new CompositeResource();
+			clone.AddRange(this);
+		    return clone;
+	    }
     }
 }

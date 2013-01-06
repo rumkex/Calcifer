@@ -3,10 +3,21 @@ using ComponentKit.Model;
 
 namespace Calcifer.Engine.Graphics.Animation
 {
-    public abstract class AnimationComponent: Component, IUpdateable
+    public class AnimationComponent: Component, IUpdateable
     {
-        public abstract Pose Pose { get; }
-        public abstract void Update(double time);
-        public abstract string Name { get; }
+        public virtual Pose Pose
+        {
+	        get { throw new System.NotImplementedException(); }
+        }
+
+	    public virtual void Update(double time)
+        {
+	        throw new System.NotImplementedException();
+        }
+
+	    public virtual string Name
+	    {
+		    get { throw new System.NotImplementedException(); }
+	    }
     }
 }

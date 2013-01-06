@@ -10,7 +10,8 @@ namespace Calcifer.Engine.Physics
 		protected override void OnAdded(ComponentStateEventArgs registrationArgs)
 		{
 			base.OnAdded(registrationArgs);
-			physics.Body.SetMassProperties(JMatrix.Zero, 1.0f / 100.0f, true);
+			physics.Body.Material.Restitution = 0f;
+			physics.Body.SetMassProperties(JMatrix.Zero, 1.0f, true);
 		}
 	}
 }

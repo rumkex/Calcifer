@@ -3,25 +3,24 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Calcifer.Engine.Graphics.Buffers
 {
-    public abstract class Texture: Buffer, IResource
+    public abstract class Texture: Buffer
     {
         public string Name { get; protected set; }
 
-        protected Texture(string name)
+        protected Texture(string name): this()
         {
-            ID = GL.GenTexture();
             Name = name;
         }
 
         protected Texture()
         {
             ID = GL.GenTexture();
-            Name = "unnamedtexture" + ID;
+			Name = "unnamedtexture" + ID;
         }
 
         protected override void Dispose(bool manual)
         {
-            if (!manual) return;
+			if (!manual) return;
             GL.DeleteTexture(ID);
         }
 

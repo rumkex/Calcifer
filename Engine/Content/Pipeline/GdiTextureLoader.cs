@@ -8,7 +8,7 @@ using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
 namespace Calcifer.Engine.Content.Pipeline
 {
-    public class GdiTextureLoader: ResourceLoader<Texture>
+    public class GdiTextureLoader: ResourceLoader<Texture2D>
     {
         private readonly float maxAnisotropic;
 
@@ -17,7 +17,7 @@ namespace Calcifer.Engine.Content.Pipeline
             GL.GetFloat((GetPName)ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAnisotropic);
         }
 
-        public override Texture Load(string name, Stream stream)
+        public override Texture2D Load(string name, Stream stream)
         {
             var bmap = new Bitmap(stream);
             var rect = new Rectangle(0, 0, bmap.Width, bmap.Height);

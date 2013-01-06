@@ -10,7 +10,7 @@ using Calcifer.Utilities.Logging;
 
 namespace Calcifer.Engine.Content
 {
-    public interface IResource
+    public interface IResource: ICloneable
     {
     }
 
@@ -58,7 +58,8 @@ namespace Calcifer.Engine.Content
                 if (cachedResult != null)
                 {
                     Log.WriteLine(LogLevel.Debug, "instantiated '{0}'", assetName);
-                    return cachedResult;
+	                var clone = cachedResult.Clone() as T;
+	                return clone;
                 }
             }
             Stream stream = Providers.LoadAsset(assetName);

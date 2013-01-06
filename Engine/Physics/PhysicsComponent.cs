@@ -22,6 +22,10 @@ namespace Calcifer.Engine.Physics
     {
         [RequireComponent] private TransformComponent transform = null;
 
+		private Transform baseTransform = Transform.Identity;
+
+		public event EventHandler<ComponentStateEventArgs> Synchronized;
+
 		public PhysicsComponent()
 		{
 			Body = new RigidBody(new SphereShape(0.0f))
@@ -30,12 +34,9 @@ namespace Calcifer.Engine.Physics
 			};
 		}
 
-        public PhysicsComponent(Shape shape, bool isStatic)
+        public PhysicsComponent(RigidBody body)
         {
-            Body = new RigidBody(shape)
-                       {
-                           IsStatic = isStatic
-                       };
+	        Body = body;
         }
 
         public RigidBody Body { get; private set; }
@@ -45,15 +46,24 @@ namespace Calcifer.Engine.Physics
 	    protected override void OnAdded(ComponentStateEventArgs registrationArgs)
         {
             base.OnAdded(registrationArgs);
-            Body.Orientation = JMatrix.CreateFromQuaternion(transform.Rotation.ToQuaternion());
-            Body.Position = transform.Translation.ToJVector();
+			Body.Tag = Record.Name;
+		    Body.Position += transform.Translation.ToJVector();
+			baseTransform = new Transform(JQuaternion.CreateFromMatrix(Body.Orientation).ToQuaternion(),
+										 Body.Position.ToVector3()).Invert() * new Transform(transform.Rotation, transform.Translation);
             transform.Bind(TransformFeedback);
         }
 
         private ScalableTransform TransformFeedback()
         {
-            return new ScalableTransform(JQuaternion.CreateFromMatrix(Body.Orientation).ToQuaternion(),
-                                         Body.Position.ToVector3());
+			var current = new Transform(JQuaternion.CreateFromMatrix(Body.Orientation).ToQuaternion(),
+										 Body.Position.ToVector3());
+	        var t = current*baseTransform;
+			return new ScalableTransform(t.Rotation, t.Translation);
         }
+
+		public void Synchronize()
+		{
+			if (Synchronized != null) Synchronized(this, new ComponentStateEventArgs(Record));
+		}
     }
 }

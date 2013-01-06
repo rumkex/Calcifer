@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Calcifer.Engine.Components;
+using Calcifer.Utilities.Logging;
 using ComponentKit;
 using ComponentKit.Model;
 using Jitter;
@@ -23,11 +24,12 @@ namespace Calcifer.Engine.Physics
             trigger = c => c is PhysicsComponent;
             World = new World(new CollisionSystemSAP{UseTriangleMeshNormal = false})
 	                    {
-		                    Gravity = new JVector(0, 0, -9.81f)
+							Gravity = new JVector(0, 0, -9.81f)
 	                    };
+			World.ContactSettings.MaterialCoefficientMixing = ContactSettings.MaterialCoefficientMixingType.TakeMinimum;
 	        // Ghost objects have "Ghost" tag, so we skip them during the broadphase
 	        World.CollisionSystem.PassedBroadphase +=
-		        (e1, e2) => (((BodyTags) e1.BroadphaseTag | (BodyTags) e1.BroadphaseTag) & BodyTags.Ghost) != 0;
+				(e1, e2) => ((BodyTags) (e1.BroadphaseTag | e2.BroadphaseTag) & BodyTags.Ghost) == BodyTags.None;
             entities.SetTrigger(trigger, ComponentSync);
         }
 
@@ -43,9 +45,11 @@ namespace Calcifer.Engine.Physics
                 else
                 {
 					c.World = World;
+	                c.Body.EnableDebugDraw = true;
 					World.AddBody(c.Body);
-                }
-            }
+				}
+				c.Synchronize();
+			}
         }
 
         public void Update(double dt)

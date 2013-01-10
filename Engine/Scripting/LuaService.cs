@@ -271,7 +271,7 @@ namespace Calcifer.Engine.Scripting
 
         private void AddObject(string map, string nameInMap, string name)
         {
-            var e = Entity.Create(name);
+            var e = Entity.Create(name, new TransformComponent());
             Log.WriteLine(LogLevel.Warning, "Entity creation not yet implemented.");
         }
     }

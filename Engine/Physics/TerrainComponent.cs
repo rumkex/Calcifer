@@ -23,7 +23,9 @@ namespace Calcifer.Engine.Physics
 		{
 			var result = new List<int>();
 			var count = octree.GetTrianglesIntersectingRay(result, start, delta);
-			return materials.First(t => result[0] >= t.Item1 && result[0] < t.Item1 + t.Item2).Item3;
+		    if (count == 0) return "";
+		    var match = materials.FirstOrDefault(t => result[0] >= t.Item1 && result[0] < t.Item1 + t.Item2);
+		    return match != null ? match.Item3 : "";
 		}
 	}
 }

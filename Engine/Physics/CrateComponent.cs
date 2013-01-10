@@ -11,6 +11,8 @@ namespace Calcifer.Engine.Physics
 		{
 			base.OnAdded(registrationArgs);
 			physics.Body.Material.Restitution = 0f;
+			physics.Body.Material.KineticFriction = 0.5f;
+			physics.Body.Material.StaticFriction = 0.5f;
 			physics.Body.SetMassProperties(JMatrix.Zero, 1.0f, true);
 		}
 	}

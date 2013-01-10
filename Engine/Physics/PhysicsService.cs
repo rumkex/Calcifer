@@ -26,7 +26,7 @@ namespace Calcifer.Engine.Physics
 	                    {
 							Gravity = new JVector(0, 0, -9.81f)
 	                    };
-			World.ContactSettings.MaterialCoefficientMixing = ContactSettings.MaterialCoefficientMixingType.TakeMinimum;
+			World.ContactSettings.MaterialCoefficientMixing = ContactSettings.MaterialCoefficientMixingType.TakeMaximum;
 	        // Ghost objects have "Ghost" tag, so we skip them during the broadphase
 	        World.CollisionSystem.PassedBroadphase +=
 				(e1, e2) => ((BodyTags) (e1.BroadphaseTag | e2.BroadphaseTag) & BodyTags.Ghost) == BodyTags.None;

@@ -143,9 +143,9 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("get_node", this,  new Func<string, int>(name => Get<LuaStorageComponent>(name).CurrentNode).Method);
             lua.RegisterFunction("set_node", this,  new Action<string, int>((name, id) => Get<LuaStorageComponent>(name).CurrentNode = id).Method);
             lua.RegisterFunction("move_to_node", this,  new Action(() => { }).Method);
-            lua.RegisterFunction("is_at_node", this,  new Func<string, bool>(name => Distance(name, Get<LuaStorageComponent>(name).Nodes[Get<LuaStorageComponent>(name).CurrentNode]) < 0.5f).Method);
+            lua.RegisterFunction("is_at_node", this,  new Func<string, bool>(name => Distance(name, Get<LuaStorageComponent>(name).Nodes[Get<LuaStorageComponent>(name).CurrentNode].Name) < 0.5f).Method);
             lua.RegisterFunction("distance_to_node", this,
-                                 new Func<string, int, float>((name, id) => Distance(name, Get<LuaStorageComponent>(name).Nodes[id])).Method);
+                                 new Func<string, int, float>((name, id) => Distance(name, Get<LuaStorageComponent>(name).Nodes[id].Name)).Method);
         }
 
         private void InitializePhysics()

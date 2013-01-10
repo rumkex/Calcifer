@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ComponentKit;
 using ComponentKit.Model;
 
 namespace Calcifer.Engine.Scripting
@@ -25,7 +26,7 @@ namespace Calcifer.Engine.Scripting
             get;
             set;
         }
-        public List<string> Nodes
+		public List<IEntityRecord> Nodes
         {
             get;
             private set;
@@ -35,9 +36,9 @@ namespace Calcifer.Engine.Scripting
             get;
             set;
         }
-        public LuaStorageComponent(IEnumerable<string> nodes)
+        public LuaStorageComponent(IEnumerable<IEntityRecord> nodes)
         {
-            this.Nodes = new List<string>(nodes);
+			this.Nodes = new List<IEntityRecord>(nodes);
         }
     }
 }

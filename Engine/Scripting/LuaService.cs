@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Graphics.Animation;
@@ -83,7 +84,7 @@ namespace Calcifer.Engine.Scripting
 			//lua.RegisterFunction("log", this, new Action<string>(s => Log.WriteLine(LogLevel.Info, s)).Method);
 			lua.RegisterFunction("log", this, new Action<string>(s => { }).Method);
             lua.RegisterFunction("lighting", this, new Action<int>(i => lights = i).Method);
-            lua.RegisterFunction("create_valid_object_name", this, new Func<string>(() => Guid.NewGuid().ToString()).Method);
+            lua.RegisterFunction("create_valid_object_name", this, new Func<string, string>((name) => name + "." + rand.Next(0, 32768).ToString(CultureInfo.InvariantCulture)).Method);
             lua.RegisterFunction("location", this, new Func<string>(() => "There ain't no way I'm tellin' ya that, punk").Method);
             lua.RegisterFunction("get_name", this, new Func<string>(() => currentScript.Record.Name).Method);
             lua.RegisterFunction("append_object", this, new Action<string, string, string>(AddObject).Method);
@@ -159,6 +160,7 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("collision_between", this, new Func<string, string, bool>((name1, name2) => false).Method);
             lua.RegisterFunction("set_gravity", this,  new Action<string, float>((name, value) => { }).Method);
             lua.RegisterFunction("set_restitution", this, new Action<string, float>((name, value) => { }).Method);
+			lua.RegisterFunction("set_speed", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
             lua.RegisterFunction("get_floor_material", this, new Func<string, string>(name => Get<MotionComponent>(name).GetFloorMaterial()).Method);
         }
 
@@ -169,10 +171,15 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("get_frame", this,  new Func<string, float>(name =>
                                                           {
                                                               var animationController = GetAnimationController(name);
-                                                              return animationController.Time*animationController.Speed;
+                                                              return (int) (2.0f * animationController.Time*animationController.Speed);
                                                           }).Method);
             lua.RegisterFunction("get_frame_ratio", this, new Func<string, float>(name => GetAnimationController(name).Speed).Method);
-            lua.RegisterFunction("is_anim_finished", this,  new Func<string, bool>(name => Math.Abs(GetAnimationController(name).Time - GetAnimationController(name).Length) < 0.016).Method);
+            lua.RegisterFunction("is_anim_finished", this,  new Func<string, bool>(name =>
+	                                                                                   {
+																						   var animationController = GetAnimationController(name);
+		                                                                                   return animationController.Length - animationController.Time <
+			                                                                                   1.0f/animationController.Speed;
+	                                                                                   }).Method);
         }
         
         private void InitializeHealth()
@@ -242,13 +249,12 @@ namespace Calcifer.Engine.Scripting
 
         private T Get<T>(string name) where T : Component
         {
-            var t = Entity.Find(name).GetComponent(default(T), true);
-			if (t != null)
-			{
-				return t;
-			}
-			throw new LuaException(typeof(T) + " not present in " + name);
-		}
+	        var e = Entity.Find(name);
+	        if (e == null) throw new LuaException(name + " does not exist");
+		    var t = e.GetComponent(default(T), true);
+	        if (t == null) throw new LuaException(typeof (T) + " not present in " + name);
+			return t;
+        }
 
         private HealthComponent GetHealthComponent(string name)
         {
@@ -265,6 +271,7 @@ namespace Calcifer.Engine.Scripting
 
         private void AddObject(string map, string nameInMap, string name)
         {
+            var e = Entity.Create(name);
             Log.WriteLine(LogLevel.Warning, "Entity creation not yet implemented.");
         }
     }

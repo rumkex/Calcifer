@@ -66,7 +66,7 @@ namespace Calcifer.Engine.Scenegraph
         public override void RenderNode()
         {
             // Draw submesh
-            GL.DrawElements(BeginMode.Triangles, count, DrawElementsType.UnsignedShort, offset);
+            GL.DrawElements(BeginMode.Triangles, count * 3, DrawElementsType.UnsignedShort, offset);
         }
     }
 }

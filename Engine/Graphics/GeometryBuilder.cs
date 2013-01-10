@@ -57,7 +57,7 @@ namespace Calcifer.Engine.Graphics
                 vertindex[vert.Position].AddLast(vertices.Count);
                 vertices.Add(vert);
             }
-            submeshes.Last().Count += v.Count;
+            submeshes.Last().Count++;
             triangles.Add(new Vector3i(indices));
         }
 

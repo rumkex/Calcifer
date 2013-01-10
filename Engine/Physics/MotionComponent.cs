@@ -23,7 +23,8 @@ namespace Calcifer.Engine.Physics
 	        phys.Body.Material.StaticFriction = 0f;
             phys.Body.Material.Restitution = 0f;
 	        var invInertia = phys.Body.InverseInertia;
-	        invInertia.M11 = 0;
+			invInertia.M11 = 0;
+			invInertia.M22 = 0;
 	        invInertia.M33 = 0;
 			phys.Body.SetMassProperties(invInertia, 1f, true);
 			phys.Synchronized += OnSynchronized;
@@ -75,5 +76,10 @@ namespace Calcifer.Engine.Physics
 	    {
 			if (cooldown > 0) cooldown -= t;
 		}
+
+	    public void SetAngularVelocity(Vector3 w)
+	    {
+		    phys.Body.AngularVelocity = w.ToJVector();
+	    }
     }
 }

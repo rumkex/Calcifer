@@ -74,7 +74,7 @@ namespace Calcifer.Engine.Scripting
             }
             catch (LuaException ex)
             {
-                Log.WriteLine(LogLevel.Error, ex.Message);
+                Log.WriteLine(LogLevel.Error, "{0} at {1}", ex.Message, ex.Source);
                 halt = true;
             }
         }
@@ -132,9 +132,13 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("angle", this, new Func<string, string, double>(GetAngle).Method);
             lua.RegisterFunction("distance", this, new Func<string, string, double>((name1, name2) => Distance(name1, name2)).Method);
             lua.RegisterFunction("set_pos", this, new Action<string, float, float, float>((name, x, y, z) => Get<TransformComponent>(name).Translation = new Vector3(x, y, z)).Method);
-            lua.RegisterFunction("move_step_local", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
-            lua.RegisterFunction("move_step", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
-            lua.RegisterFunction("rotate_step", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
+            lua.RegisterFunction("move_step_local", this, new Action<string, float, float, float>((name, x, y, z) =>
+	                {
+						var v = Vector3.Transform(-new Vector3(x, y, z) * 30f, Get<TransformComponent>(name).Rotation);
+						Get<MotionComponent>(name).SetTargetVelocity(v);
+	                }).Method);
+            lua.RegisterFunction("move_step", this, new Action<string, float, float, float>((name, x, y, z) => Get<MotionComponent>(name).SetTargetVelocity(30f * new Vector3(x, y, z))).Method);
+            lua.RegisterFunction("rotate_step", this, new Action<string, float, float, float>((name, x, y, z) => Get<MotionComponent>(name).SetAngularVelocity(30f * MathHelper.Pi / 180f * new Vector3(x, y, z))).Method);
 			lua.RegisterFunction("jump", this, new Action<string>(name => Get<MotionComponent>(name).Jump()).Method);
         }
 
@@ -145,7 +149,9 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("move_to_node", this,  new Action(() => { }).Method);
             lua.RegisterFunction("is_at_node", this,  new Func<string, bool>(name => Distance(name, Get<LuaStorageComponent>(name).Nodes[Get<LuaStorageComponent>(name).CurrentNode].Name) < 0.5f).Method);
             lua.RegisterFunction("distance_to_node", this,
-                                 new Func<string, int, float>((name, id) => Distance(name, Get<LuaStorageComponent>(name).Nodes[id].Name)).Method);
+								 new Func<string, int, float>((name, id) => Distance(name, Get<LuaStorageComponent>(name).Nodes[id].Name)).Method);
+			lua.RegisterFunction("angle_to_node", this,
+								  new Func<string, int, double>((name, id) => GetAngle(name, Get<LuaStorageComponent>(name).Nodes[id].Name)).Method);
         }
 
         private void InitializePhysics()
@@ -166,7 +172,7 @@ namespace Calcifer.Engine.Scripting
                                                               return animationController.Time*animationController.Speed;
                                                           }).Method);
             lua.RegisterFunction("get_frame_ratio", this, new Func<string, float>(name => GetAnimationController(name).Speed).Method);
-            lua.RegisterFunction("is_anim_finished", this,  new Func<string, bool>(name => Math.Abs(GetAnimationController(name).Time - GetAnimationController(name).Length) < 0.01).Method);
+            lua.RegisterFunction("is_anim_finished", this,  new Func<string, bool>(name => Math.Abs(GetAnimationController(name).Time - GetAnimationController(name).Length) < 0.016).Method);
         }
         
         private void InitializeHealth()
@@ -188,8 +194,17 @@ namespace Calcifer.Engine.Scripting
         private void InitializeText()
         {
             lua.RegisterFunction("get_choice", this, new Func<string>(() => "choice").Method);
-            lua.RegisterFunction("set_choices", this, GetType().GetMethod("SetChoices"));
+			lua.RegisterFunction("set_choices", this, GetType().GetMethod("SetChoices"));
+			lua.RegisterFunction("set_messages", this, GetType().GetMethod("SetMessages"));
         }
+
+		public void SetMessages(object[] args)
+		{
+			foreach (var o in args)
+			{
+				Console.WriteLine(o);
+			}
+		}
 
         public void SetChoices(params object[] args)
         {

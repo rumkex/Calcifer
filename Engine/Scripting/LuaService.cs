@@ -194,21 +194,23 @@ namespace Calcifer.Engine.Scripting
         private void InitializeText()
         {
             lua.RegisterFunction("get_choice", this, new Func<string>(() => "choice").Method);
-			lua.RegisterFunction("set_choices", this, GetType().GetMethod("SetChoices"));
-			lua.RegisterFunction("set_messages", this, GetType().GetMethod("SetMessages"));
+			lua.RegisterFunction("i_set_choices", this, GetType().GetMethod("SetChoices"));
+			lua.DoString("function set_choices(...) i_set_choices({...}) end");
+			lua.RegisterFunction("i_set_messages", this, GetType().GetMethod("SetMessages"));
+	        lua.DoString("function set_messages(...) i_set_messages({...}) end");
         }
 
-		public void SetMessages(object[] args)
+		public void SetMessages(LuaTable args)
 		{
-			foreach (var o in args)
+			foreach (var o in args.Values)
 			{
-				Console.WriteLine(o);
+				Console.WriteLine(o.ToString());
 			}
 		}
 
-        public void SetChoices(params object[] args)
+		public void SetChoices(LuaTable args)
         {
-            foreach (var o in args)
+            foreach (var o in args.Values)
             {
                 Console.WriteLine(o);
             }

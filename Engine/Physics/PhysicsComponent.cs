@@ -61,6 +61,13 @@ namespace Calcifer.Engine.Physics
 			return new ScalableTransform(t.Rotation, t.Translation);
         }
 
+        public bool CollidesWith(RigidBody other)
+        {
+            return Record.HasComponent<SensorComponent>() ? 
+                Record.GetComponent<SensorComponent>().CollidingBodies.Contains(other) : 
+                Body.CollisionIsland.Bodies.Contains(other);
+        }
+
 		public void Synchronize()
 		{
 			if (Synchronized != null) Synchronized(this, new ComponentStateEventArgs(Record));

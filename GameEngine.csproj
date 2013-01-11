@@ -141,10 +141,12 @@
     <Compile Include="Engine\Scenery\MapBuilder.cs" />
     <Compile Include="Engine\Scenery\Parameter.cs" />
     <Compile Include="Engine\EngineException.cs" />
+    <Compile Include="Engine\Scripting\PlayerStateComponent.cs" />
     <Compile Include="Engine\Scripting\HealthComponent.cs" />
     <Compile Include="Engine\Scripting\LuaComponent.cs" />
-    <Compile Include="Engine\Scripting\LuaStorageComponent.cs" />
+    <Compile Include="Engine\Scripting\WaypointComponent.cs" />
     <Compile Include="Engine\Scripting\LuaService.cs" />
+    <Compile Include="Engine\Physics\WaypointMovableComponent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\GLConfig.cs" />
     <Compile Include="Utilities\Logging\Log.cs" />

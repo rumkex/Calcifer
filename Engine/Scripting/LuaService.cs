@@ -79,6 +79,7 @@ namespace Calcifer.Engine.Scripting
                 halt = true;
             }
         }
+
         private void InitializeCore()
         {
 			//lua.RegisterFunction("log", this, new Action<string>(s => Log.WriteLine(LogLevel.Info, s)).Method);
@@ -117,11 +118,11 @@ namespace Calcifer.Engine.Scripting
 		{
 			lua.RegisterFunction("can_walk", this, new Func<string, bool>(name => Get<MotionComponent>(name).IsOnGround).Method);
 
-            lua.RegisterFunction("set_can_push", this, new Action<string, bool>((name, value) => Get<LuaStorageComponent>(name).CanPush = value).Method);
-            lua.RegisterFunction("get_can_push", this,  new Func<string, bool>(name => Get<LuaStorageComponent>(name).CanPush).Method);
-            lua.RegisterFunction("can_climb", this, new Func<string, bool>(name => Get<LuaStorageComponent>(name).CanClimb).Method);
-            lua.RegisterFunction("can_get_over", this, new Func<string, bool>(name => Get<LuaStorageComponent>(name).CanGetOver).Method);
-            lua.RegisterFunction("can_hit_wall", this, new Func<string, bool>(name => Get<LuaStorageComponent>(name).CanHitWall).Method);
+            lua.RegisterFunction("set_can_push", this, new Action<string, bool>((name, value) => Get<PlayerStateComponent>(name).CanPush = value).Method);
+            lua.RegisterFunction("get_can_push", this, new Func<string, bool>(name => Get<PlayerStateComponent>(name).CanPush).Method);
+            lua.RegisterFunction("can_climb", this, new Func<string, bool>(name => Get<PlayerStateComponent>(name).CanClimb).Method);
+            lua.RegisterFunction("can_get_over", this, new Func<string, bool>(name => Get<PlayerStateComponent>(name).CanGetOver).Method);
+            lua.RegisterFunction("can_hit_wall", this, new Func<string, bool>(name => Get<PlayerStateComponent>(name).CanHitWall).Method);
         }
         private void InitializeNavigation()
         {
@@ -146,14 +147,14 @@ namespace Calcifer.Engine.Scripting
 
         private void InitializeNodes()
         {
-            lua.RegisterFunction("get_node", this,  new Func<string, int>(name => Get<LuaStorageComponent>(name).CurrentNode).Method);
-            lua.RegisterFunction("set_node", this,  new Action<string, int>((name, id) => Get<LuaStorageComponent>(name).CurrentNode = id).Method);
-            lua.RegisterFunction("move_to_node", this,  new Action(() => { }).Method);
-            lua.RegisterFunction("is_at_node", this,  new Func<string, bool>(name => Distance(name, Get<LuaStorageComponent>(name).Nodes[Get<LuaStorageComponent>(name).CurrentNode].Name) < 0.5f).Method);
+            lua.RegisterFunction("get_node", this,  new Func<string, int>(name => Get<WaypointComponent>(name).CurrentNode).Method);
+            lua.RegisterFunction("set_node", this,  new Action<string, int>((name, id) => Get<WaypointComponent>(name).CurrentNode = id).Method);
+            lua.RegisterFunction("move_to_node", this,  new Action(() => Get<WaypointMovableComponent>(currentScript.Record.Name).Activate()).Method);
+            lua.RegisterFunction("is_at_node", this,  new Func<string, bool>(name => Distance(name, Get<WaypointComponent>(name).Nodes[Get<WaypointComponent>(name).CurrentNode].Name) < 0.5f).Method);
             lua.RegisterFunction("distance_to_node", this,
-								 new Func<string, int, float>((name, id) => Distance(name, Get<LuaStorageComponent>(name).Nodes[id].Name)).Method);
+								 new Func<string, int, float>((name, id) => Distance(name, Get<WaypointComponent>(name).Nodes[id].Name)).Method);
 			lua.RegisterFunction("angle_to_node", this,
-								  new Func<string, int, double>((name, id) => GetAngle(name, Get<LuaStorageComponent>(name).Nodes[id].Name)).Method);
+								  new Func<string, int, double>((name, id) => GetAngle(name, Get<WaypointComponent>(name).Nodes[id].Name)).Method);
         }
 
         private void InitializePhysics()

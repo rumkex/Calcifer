@@ -84,7 +84,7 @@ namespace Calcifer.Engine.Scripting
 			//lua.RegisterFunction("log", this, new Action<string>(s => Log.WriteLine(LogLevel.Info, s)).Method);
 			lua.RegisterFunction("log", this, new Action<string>(s => { }).Method);
             lua.RegisterFunction("lighting", this, new Action<int>(i => lights = i).Method);
-            lua.RegisterFunction("take_camera", this, new Action(() => Log.WriteLine(LogLevel.Debug, "{0} tried to take camera", currentScript.Record.Name)).Method);
+            lua.RegisterFunction("take_camera", this, new Action(() => Get<TransformComponent>("viewer").Translation = currentScript.Record.GetComponent<TransformComponent>().Translation).Method);
             lua.RegisterFunction("create_valid_object_name", this, new Func<string, string>((name) => name + "." + rand.Next(0, 32768).ToString(CultureInfo.InvariantCulture)).Method);
             lua.RegisterFunction("location", this, new Func<string>(() => "There ain't no way I'm tellin' ya that, punk").Method);
             lua.RegisterFunction("get_name", this, new Func<string>(() => currentScript.Record.Name).Method);

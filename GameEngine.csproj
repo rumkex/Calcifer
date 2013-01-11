@@ -74,6 +74,7 @@
     <Compile Include="Engine\Components\CameraComponent.cs" />
     <Compile Include="Engine\Physics\CrateComponent.cs" />
     <Compile Include="Engine\Components\KeyboardControllerComponent.cs" />
+    <Compile Include="Engine\Physics\TargetConstraint.cs" />
     <Compile Include="Engine\Physics\SensorComponent.cs" />
     <Compile Include="Engine\Components\TransformComponent.cs" />
     <Compile Include="Engine\Components\IUpdateable.cs" />

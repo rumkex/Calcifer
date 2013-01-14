@@ -2,6 +2,7 @@
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Scripting;
 using Calcifer.Utilities;
+using Calcifer.Utilities.Logging;
 using ComponentKit.Model;
 using Jitter.LinearMath;
 using OpenTK;
@@ -34,11 +35,17 @@ namespace Calcifer.Engine.Physics
                                         };
         }
         
+        private int currentNode = -1;
+
         public void Activate()
         {
+            if (currentNode == nodes.CurrentNode) return;
+            currentNode = nodes.CurrentNode;
             var target = nodes.Nodes[nodes.CurrentNode];
             var otherTransform = target.GetComponent<TransformComponent>();
+            physics.Body.IsActive = true;
             constraint.Target = (otherTransform.Translation + physics.Offset).ToJVector();
+            Log.WriteLine(LogLevel.Debug, "{0} moving to the node {1}", Record.Name, nodes.CurrentNode);
         }
     }
 }

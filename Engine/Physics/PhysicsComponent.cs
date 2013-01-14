@@ -8,6 +8,7 @@ using Jitter;
 using Jitter.Collision.Shapes;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
+using OpenTK;
 
 namespace Calcifer.Engine.Physics
 {
@@ -40,14 +41,19 @@ namespace Calcifer.Engine.Physics
         }
 
         public RigidBody Body { get; private set; }
-
+        public Vector3 Offset { get; private set; }
         public World World { get; set; }
 
 	    protected override void OnAdded(ComponentStateEventArgs registrationArgs)
         {
             base.OnAdded(registrationArgs);
 			Body.Tag = Record.Name;
-		    Body.Position += transform.Translation.ToJVector();
+            var offset = Body.Position;
+            Offset = offset.ToVector3();
+            var rot = JMatrix.CreateFromQuaternion(transform.Rotation.ToQuaternion());
+            JVector.Transform(ref offset, ref rot, out offset);
+            Body.Orientation = Body.Orientation * rot;
+            Body.Position = offset + transform.Translation.ToJVector();
 			baseTransform = new Transform(JQuaternion.CreateFromMatrix(Body.Orientation).ToQuaternion(),
 										 Body.Position.ToVector3()).Invert() * new Transform(transform.Rotation, transform.Translation);
             transform.Bind(TransformFeedback);

@@ -38,7 +38,7 @@ namespace Calcifer.Engine.Physics
         {
             var target = nodes.Nodes[nodes.CurrentNode];
             var otherTransform = target.GetComponent<TransformComponent>();
-            constraint.Target = otherTransform.Translation.ToJVector();
+            constraint.Target = (otherTransform.Translation + physics.Offset).ToJVector();
         }
     }
 }

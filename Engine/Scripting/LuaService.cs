@@ -270,7 +270,7 @@ namespace Calcifer.Engine.Scripting
 
         private void PlaySound(string owner, string sound, bool looped, float pitch)
         {
-            Log.WriteLine(LogLevel.Warning, "Sound playing not yet implemented.");
+            //Log.WriteLine(LogLevel.Warning, "Sound playing not yet implemented.");
         }
 
         private void AddObject(string map, string nameInMap, string name)

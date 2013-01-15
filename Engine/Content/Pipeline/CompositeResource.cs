@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Calcifer.Engine.Content.Pipeline
 {
@@ -13,8 +14,8 @@ namespace Calcifer.Engine.Content.Pipeline
 	    public object Clone()
 	    {
 			var clone = new CompositeResource();
-			clone.AddRange(this);
-		    return clone;
+	        clone.AddRange(this.Select(resource => resource.Clone()).Cast<IResource>());
+	        return clone;
 	    }
     }
 }

@@ -49,9 +49,9 @@ namespace Calcifer.Engine.Physics
             base.OnAdded(registrationArgs);
 			Body.Tag = Record.Name;
             var offset = Body.Position;
-            Offset = offset.ToVector3();
             var rot = JMatrix.CreateFromQuaternion(transform.Rotation.ToQuaternion());
             JVector.Transform(ref offset, ref rot, out offset);
+            Offset = offset.ToVector3();
             Body.Orientation = Body.Orientation * rot;
             Body.Position = offset + transform.Translation.ToJVector();
 			baseTransform = new Transform(JQuaternion.CreateFromMatrix(Body.Orientation).ToQuaternion(),

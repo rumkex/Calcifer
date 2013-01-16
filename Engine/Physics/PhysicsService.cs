@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Calcifer.Engine.Components;
 using Calcifer.Utilities.Logging;
@@ -11,16 +12,14 @@ using Jitter.LinearMath;
 
 namespace Calcifer.Engine.Physics
 {
-    public class PhysicsService : IUpdateable
+    public class PhysicsService : IUpdateable, IService
     {
-        private readonly IEntityRecordCollection entities;
         private readonly ComponentSyncTriggerPredicate trigger;
 
         public World World { get; private set; }
 
         public PhysicsService()
         {
-            this.entities = EntityRegistry.Current;
             trigger = c => c is PhysicsComponent;
             World = new World(new CollisionSystemSAP{UseTriangleMeshNormal = false})
 	                    {
@@ -30,12 +29,11 @@ namespace Calcifer.Engine.Physics
 	        // Ghost objects have "Ghost" tag, so we skip them during the broadphase
 	        World.CollisionSystem.PassedBroadphase +=
 				(e1, e2) => ((BodyTags) (e1.BroadphaseTag | e2.BroadphaseTag) & BodyTags.Ghost) == BodyTags.None;
-            entities.SetTrigger(trigger, ComponentSync);
         }
 
-	    private void ComponentSync(object sender, ComponentSyncEventArgs e)
+	    public void Synchronize(IEnumerable<IComponent> components)
         {
-            foreach (var c in e.Components.OfType<PhysicsComponent>())
+            foreach (var c in components.OfType<PhysicsComponent>())
             {
                 if (c.IsOutOfSync)
                 {
@@ -55,11 +53,6 @@ namespace Calcifer.Engine.Physics
         public void Update(double dt)
         {
             World.Step((float) dt, false);
-        }
-
-        ~PhysicsService()
-        {
-            entities.ClearTrigger(trigger);
         }
     }
 }

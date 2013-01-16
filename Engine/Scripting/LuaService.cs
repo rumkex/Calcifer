@@ -17,12 +17,11 @@ using LuaInterface;
 
 namespace Calcifer.Engine.Scripting
 {
-    public class LuaService
+    public class LuaService: IService
     {
         private Lua lua;
 		private Dictionary<LuaComponent, LuaFunction> cache; 
         private LuaComponent currentScript;
-        private HashSet<string> collisions;
         private Random rand;
         private int lights;
         public LuaService()
@@ -30,7 +29,6 @@ namespace Calcifer.Engine.Scripting
             lua = new Lua();
 			cache = new Dictionary<LuaComponent, LuaFunction>();
             rand = new Random();
-            collisions = new HashSet<string>();
             InitializeCore();
             InitializeKeyboard();
             InitializeProperties();
@@ -41,12 +39,11 @@ namespace Calcifer.Engine.Scripting
             InitializeHealth();
             InitializeSound();
             InitializeText();
-            EntityRegistry.Current.SetTrigger(c => c is LuaComponent, ComponentSync);
         }
 
-        private void ComponentSync(object sender, ComponentSyncEventArgs e)
+        public void Synchronize(IEnumerable<IComponent> components)
         {
-            foreach (var c in e.Components.OfType<LuaComponent>())
+            foreach (var c in components.OfType<LuaComponent>())
                 c.Service = c.IsOutOfSync ? null : this;
         }
 

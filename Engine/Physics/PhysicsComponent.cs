@@ -83,15 +83,21 @@ namespace Calcifer.Engine.Physics
 	    public void SaveState(BinaryWriter writer)
 	    {
             writer.Write(Body.Position.X); writer.Write(Body.Position.Y); writer.Write(Body.Position.Z);
-	        var q = JQuaternion.CreateFromMatrix(Body.Orientation);
+            var q = JQuaternion.CreateFromMatrix(Body.Orientation);
             writer.Write(q.X); writer.Write(q.Y); writer.Write(q.Z); writer.Write(q.W);
+	        if (Body.IsStatic) return;
+            writer.Write(Body.LinearVelocity.X); writer.Write(Body.LinearVelocity.Y); writer.Write(Body.LinearVelocity.Z);
+            writer.Write(Body.AngularVelocity.X); writer.Write(Body.AngularVelocity.Y); writer.Write(Body.AngularVelocity.Z);
 	    }
 
 	    public void RestoreState(BinaryReader reader)
 	    {
             Body.Position = new JVector(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
             var q = new JQuaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-	        Body.Orientation = JMatrix.CreateFromQuaternion(q);
+            Body.Orientation = JMatrix.CreateFromQuaternion(q);
+            if (Body.IsStatic) return;
+            Body.LinearVelocity = new JVector(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            Body.AngularVelocity = new JVector(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 	    }
     }
 }

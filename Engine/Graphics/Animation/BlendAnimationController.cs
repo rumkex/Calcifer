@@ -1,103 +1,148 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Calcifer.Engine.Components;
 using Calcifer.Engine.Graphics.Primitives;
 
 namespace Calcifer.Engine.Graphics.Animation
 {
-    public class BlendAnimationController : AnimationComponent
+    public class BlendAnimationController : AnimationComponent, ISaveable
     {
-        private Pose pose;
-		private Pose invRestPose;
-        private Dictionary<string, AnimationData> anims;
-        private Sequence current;
-        private Sequence backup;
-        private float fadeTime;
+        private readonly Dictionary<string, AnimationData> anims;
+        private readonly Pose invRestPose;
+        private LinearSequence backup;
+        private LinearSequence current;
         private float fadeLeft;
-        public override string Name
-        {
-            get
-            {
-                return current != null ? current.Name : "";
-            }
-        }
-        public float Speed
-        {
-            get
-            {
-                return current != null ? current.Speed : 0;
-            }
-        }
-        public float Length
-        {
-            get
-            {
-                return current != null ? current.Length: 0;
-            }
-        }
-        public float Time
-        {
-            get
-            {
-                return current != null ? current.Time: 0;
-            }
-        }
-        public override Pose Pose
-        {
-            get
-            {
-				return pose;
-            }
-        }
+        private float fadeTime;
+        private Pose pose;
+
         public BlendAnimationController(Pose rest)
         {
-			invRestPose = new Pose(rest);
-			for (int id = 0; id < rest.BoneCount; id++)
-				invRestPose.SetWorldTransform(id, rest[id].WorldTransform.Invert());
-            this.pose = new Pose(rest.BoneCount);
-            this.anims = new Dictionary<string, AnimationData>();
+            invRestPose = new Pose(rest);
+            for (int id = 0; id < rest.BoneCount; id++)
+                invRestPose.SetWorldTransform(id, rest[id].WorldTransform.Invert());
+            pose = new Pose(rest.BoneCount);
+            anims = new Dictionary<string, AnimationData>();
         }
+
+        public override string Name
+        {
+            get { return current != null ? current.Name : ""; }
+        }
+
+        public float Speed
+        {
+            get { return current != null ? current.Speed : 0; }
+        }
+
+        public float Length
+        {
+            get { return current != null ? current.Length : 0; }
+        }
+
+        public float Time
+        {
+            get { return current != null ? current.Time : 0; }
+        }
+
+        public override Pose Pose
+        {
+            get { return pose; }
+        }
+
+        public void SaveState(BinaryWriter writer)
+        {
+            writer.Write(current == null ? "" : current.Name);
+            if (current != null)
+            {
+                writer.Write(current.Loop);
+                writer.Write(current.Speed);
+                writer.Write(current.Time);
+            } 
+            writer.Write(backup == null ? "" : backup.Name);
+            if (backup != null)
+            {
+                writer.Write(backup.Loop);
+                writer.Write(backup.Speed);
+                writer.Write(backup.Time);
+            }
+            writer.Write(fadeLeft);
+            writer.Write(fadeTime);
+        }
+
+        public void RestoreState(BinaryReader reader)
+        {
+            var curName = reader.ReadString();
+            if (curName != "")
+            {
+                var loop = reader.ReadBoolean();
+                current = new LinearSequence(anims[curName], loop)
+                              {
+                                  Speed = reader.ReadSingle(),
+                                  Time = reader.ReadSingle()
+                              };
+            }
+            var backupName = reader.ReadString();
+            if (backupName != "")
+            {
+                var loop = reader.ReadBoolean();
+                backup = new LinearSequence(anims[backupName], loop)
+                {
+                    Speed = reader.ReadSingle(),
+                    Time = reader.ReadSingle()
+                };
+            }
+            fadeLeft = reader.ReadSingle();
+            fadeTime = reader.ReadSingle();
+        }
+
         public void AddAnimation(AnimationData anim)
         {
-            this.anims.Add(anim.Name, anim);
+            anims.Add(anim.Name, anim);
         }
+
         public void Start(string name, bool loop)
         {
-            this.current = new LinearSequence(this.anims[name], loop);
+            current = new LinearSequence(anims[name], loop);
         }
+
         public void Crossfade(string name, float time, bool loop)
         {
-            LinearSequence linearSequence = new LinearSequence(this.anims[name], loop);
-            this.backup = linearSequence;
-            this.fadeLeft = time;
-            this.fadeTime = time;
+            var linearSequence = new LinearSequence(anims[name], loop);
+            backup = linearSequence;
+            fadeLeft = time;
+            fadeTime = time;
         }
+
         public override void Update(double time)
         {
-            if (this.fadeLeft > 0f)
+            if (fadeLeft > 0f)
             {
-                this.fadeLeft = Math.Max(this.fadeLeft - (float)time, 0f);
+                fadeLeft = Math.Max(fadeLeft - (float) time, 0f);
             }
-            if (this.current == null)
+            if (current == null)
             {
                 return;
             }
-            this.current.Update((float)time);
-            if (this.backup != null)
+            current.Update((float) time);
+            if (backup != null)
             {
-                this.backup.Update((float)time);
+                backup.Update((float) time);
             }
-            this.pose = new Pose(this.current.Pose);
+            pose = new Pose(current.Pose);
 
-			if (this.backup != null && this.fadeLeft > 0f)
-				for (int i = 0; i < this.pose.BoneCount; i++)
-                    this.pose.SetTransform(i, Transform.Interpolate(this.current.Pose[i].Transform, this.backup.Pose[i].Transform, 1f - this.fadeLeft / this.fadeTime));
-            this.pose.CalculateWorld();
-            if (this.backup != null && this.fadeLeft <= 0.01f)
+            if (backup != null && fadeLeft > 0f)
+                for (int i = 0; i < pose.BoneCount; i++)
+                    pose.SetTransform(i,
+                                      Transform.Interpolate(current.Pose[i].Transform, backup.Pose[i].Transform,
+                                                            1f - fadeLeft/fadeTime));
+            pose.CalculateWorld();
+            if (backup != null && fadeLeft <= 0.01f)
             {
-                this.current = this.backup;
-                this.backup = null;
+                current = backup;
+                backup = null;
             }
-            this.pose.MergeWith(invRestPose);
+            pose.MergeWith(invRestPose);
         }
     }
 }

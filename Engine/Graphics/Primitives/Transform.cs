@@ -75,9 +75,7 @@ namespace Calcifer.Engine.Graphics.Primitives
         public static Transform operator *(Transform t1, Transform t2)
         {
             Transform t;
-            Vector3.Transform(ref t2.Translation, ref t1.Rotation, out t.Translation);
-            Vector3.Add(ref t.Translation, ref t1.Translation, out t.Translation);
-            Quaternion.Multiply(ref t1.Rotation, ref t2.Rotation, out t.Rotation);
+            Multiply(ref t1, ref t2, out t);
             return t;
         }
 
@@ -87,6 +85,7 @@ namespace Calcifer.Engine.Graphics.Primitives
             Vector3.Transform(ref t2.Translation, ref t1.Rotation, out temp);
             Vector3.Add(ref temp, ref t1.Translation, out t.Translation);
             Quaternion.Multiply(ref t1.Rotation, ref t2.Rotation, out t.Rotation);
+            Quaternion.Normalize(ref t.Rotation, out t.Rotation);
         }
     }
 }

@@ -51,11 +51,17 @@ namespace Calcifer.Engine.Graphics
 
 	public class BaseRenderPass : RenderPass
 	{
+	    private const int MaxBones = 60;
+
 		private readonly ICamera camera;
 		private readonly Shader shader;
-		private float[] boneCache = new float[960];
+		private float[] boneCache = new float[16 * MaxBones];
 		public BaseRenderPass(ICamera camera)
 		{
+            for (int i = 0; i < boneCache.Length; i++)
+		    {
+		        if ((i%16)%5 == 0) boneCache[i] = 1;
+		    }
 			this.camera = camera;
 			this.shader = ShaderFactory.Create(File.OpenRead("../FX/skin.vert"), File.OpenRead("../FX/skin.frag"));
 		}
@@ -81,15 +87,12 @@ namespace Calcifer.Engine.Graphics
 		}
 		public override void Visit(AnimationNode node)
 		{
-			int num = 0;
-			Pose pose = node.Pose;
-			foreach (Bone current in pose)
-			{
-				current.GetMatrix(this.boneCache, num);
-				num += 16;
-			}
+            for (int i = 0; i < node.Pose.BoneCount; i++)
+            {
+                node.Pose[i].GetMatrix(boneCache, i * 16);
+            }
 			this.shader.SetUniform("animated", 1f);
-			GL.UniformMatrix4(this.shader.GetUniformLocation("Bones"), 60, false, this.boneCache);
+            GL.UniformMatrix4(this.shader.GetUniformLocation("Bones"), node.Pose.BoneCount, false, this.boneCache);
 			node.VisitChildren(this);
 			this.shader.SetUniform("animated", 0f);
 		}

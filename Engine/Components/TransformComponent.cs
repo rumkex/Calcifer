@@ -1,3 +1,4 @@
+using System.IO;
 using Calcifer.Engine.Graphics.Primitives;
 using ComponentKit.Model;
 using OpenTK;
@@ -5,7 +6,7 @@ using System;
 
 namespace Calcifer.Engine.Components
 {
-	public class TransformComponent : Component
+	public class TransformComponent : Component, ISaveable
 	{
 		private ScalableTransform transform;
 		private Func<ScalableTransform> transformCallback;
@@ -70,5 +71,26 @@ namespace Calcifer.Engine.Components
 		{
 			this.transformCallback = null;
 		}
+
+	    public void SaveState(BinaryWriter writer)
+	    {
+            writer.Write(transform.Translation.X);
+            writer.Write(transform.Translation.Y);
+            writer.Write(transform.Translation.Z);
+            writer.Write(transform.Rotation.X);
+            writer.Write(transform.Rotation.Y);
+            writer.Write(transform.Rotation.Z);
+            writer.Write(transform.Rotation.W);
+            writer.Write(transform.Scale.X);
+            writer.Write(transform.Scale.Y);
+            writer.Write(transform.Scale.Z);
+	    }
+
+	    public void RestoreState(BinaryReader reader)
+	    {
+            transform.Translation = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            transform.Rotation = new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            transform.Scale = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+	    }
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Graphics.Primitives;
 using Calcifer.Utilities;
@@ -19,7 +20,7 @@ namespace Calcifer.Engine.Physics
 		Ghost = 1,
 	}
 
-	public class PhysicsComponent : DependencyComponent
+	public class PhysicsComponent : DependencyComponent, ISaveable
     {
         [RequireComponent] private TransformComponent transform = null;
 
@@ -78,5 +79,19 @@ namespace Calcifer.Engine.Physics
 		{
 			if (Synchronized != null) Synchronized(this, new ComponentStateEventArgs(Record));
 		}
+
+	    public void SaveState(BinaryWriter writer)
+	    {
+            writer.Write(Body.Position.X); writer.Write(Body.Position.Y); writer.Write(Body.Position.Z);
+	        var q = JQuaternion.CreateFromMatrix(Body.Orientation);
+            writer.Write(q.X); writer.Write(q.Y); writer.Write(q.Z); writer.Write(q.W);
+	    }
+
+	    public void RestoreState(BinaryReader reader)
+	    {
+            Body.Position = new JVector(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            var q = new JQuaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+	        Body.Orientation = JMatrix.CreateFromQuaternion(q);
+	    }
     }
 }

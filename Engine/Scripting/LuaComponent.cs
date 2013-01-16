@@ -1,9 +1,10 @@
+using System.IO;
 using Calcifer.Engine.Components;
 using ComponentKit.Model;
 
 namespace Calcifer.Engine.Scripting
 {
-    public class LuaComponent : Component, IUpdateable
+    public class LuaComponent : Component, IUpdateable, ISaveable
     {
         private float wait;
 
@@ -33,6 +34,16 @@ namespace Calcifer.Engine.Scripting
         public void Wait(float seconds)
         {
             wait = seconds;
+        }
+
+        public void SaveState(BinaryWriter writer)
+        {
+            writer.Write(wait);
+        }
+
+        public void RestoreState(BinaryReader reader)
+        {
+            wait = reader.ReadSingle();
         }
     }
 }

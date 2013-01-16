@@ -72,7 +72,9 @@
   <ItemGroup>
     <Compile Include="Engine\Audio\Sound.cs" />
     <Compile Include="Engine\Components\CameraComponent.cs" />
+    <Compile Include="Engine\Components\ISaveable.cs" />
     <Compile Include="Engine\Components\IService.cs" />
+    <Compile Include="Engine\Components\StateService.cs" />
     <Compile Include="Engine\Physics\CrateComponent.cs" />
     <Compile Include="Engine\Components\KeyboardControllerComponent.cs" />
     <Compile Include="Engine\Physics\TargetConstraint.cs" />

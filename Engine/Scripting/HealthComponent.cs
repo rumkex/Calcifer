@@ -1,4 +1,5 @@
 using System;
+using Calcifer.Utilities.Logging;
 using ComponentKit;
 using ComponentKit.Model;
 
@@ -40,6 +41,7 @@ namespace Calcifer.Engine.Scripting
 
         public void DoDamage(int value)
         {
+            Log.WriteLine(LogLevel.Debug, "{0} received {1} damage. {2} HP left", Record.Name, value, health);
             if (value > Health)
             {
                 health = 0;

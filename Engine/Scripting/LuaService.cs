@@ -182,13 +182,24 @@ namespace Calcifer.Engine.Scripting
 			                                                                                   1.0f/animationController.Speed;
 	                                                                                   }).Method);
         }
-        
+
+        private Dictionary<string, bool> wounded = new Dictionary<string, bool>(); 
+
         private void InitializeHealth()
         {
             lua.RegisterFunction("get_health", this, new Func<string, int>(name => GetHealthComponent(name).Health).Method);
             lua.RegisterFunction("set_health", this,  new Action<string, int>((name, value) => GetHealthComponent(name).Health = value).Method);
-            lua.RegisterFunction("get_wounded", this,  new Func<string, bool>(name => GetHealthComponent(name).IsWounded).Method);
-            lua.RegisterFunction("set_wounded", this,  new Action<string, bool>((name, value) => Log.WriteLine(LogLevel.Error, "IsWounded property is read-only. Use set_health instead")).Method);
+
+            lua.RegisterFunction("get_wounded", this,  new Func<string, bool>(name =>
+                                                                                  {
+                                                                                      if (!wounded.ContainsKey(name)) wounded.Add(name, false);
+                                                                                      return wounded[name];
+                                                                                  }).Method);
+            lua.RegisterFunction("set_wounded", this,  new Action<string, bool>((name, value) =>
+                                                                                    {
+                                                                                        if (!wounded.ContainsKey(name)) wounded.Add(name, false);
+                                                                                        wounded[name] = value;
+                                                                                    }).Method);
         }
 
         private void InitializeSound()
@@ -273,7 +284,7 @@ namespace Calcifer.Engine.Scripting
         private void AddObject(string map, string nameInMap, string name)
         {
             var e = Entity.Create(name, new TransformComponent());
-            Log.WriteLine(LogLevel.Warning, "Entity creation not yet implemented.");
+            Log.WriteLine(LogLevel.Warning, "Created dummy entity '{0}'", name);
         }
     }
 }

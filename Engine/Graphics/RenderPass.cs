@@ -41,7 +41,7 @@ namespace Calcifer.Engine.Graphics
         {
             this.Visit((SceneNode)node);
         }
-        public virtual void BeginRender()
+        public virtual void BeginRender(ICamera camera)
         {
         }
         public virtual void EndRender()
@@ -53,19 +53,17 @@ namespace Calcifer.Engine.Graphics
 	{
 	    private const int MaxBones = 60;
 
-		private readonly ICamera camera;
 		private readonly Shader shader;
 		private float[] boneCache = new float[16 * MaxBones];
-		public BaseRenderPass(ICamera camera)
+		public BaseRenderPass()
 		{
             for (int i = 0; i < boneCache.Length; i++)
 		    {
 		        if ((i%16)%5 == 0) boneCache[i] = 1;
 		    }
-			this.camera = camera;
-			this.shader = ShaderFactory.Create(File.OpenRead("../FX/skin.vert"), File.OpenRead("../FX/skin.frag"));
+			shader = ShaderFactory.Create(File.OpenRead("../FX/skin.vert"), File.OpenRead("../FX/skin.frag"));
 		}
-		public override void BeginRender()
+		public override void BeginRender(ICamera camera)
 		{
 			var mat = camera.Matrix;
 			GL.MatrixMode(MatrixMode.Modelview);

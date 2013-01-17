@@ -41,6 +41,23 @@ namespace Calcifer.Engine.Scenegraph
         {
         }
 
+        protected virtual void Clear()
+        {
+            var current = Children.First;
+            while (current != null)
+            {
+                current.Value.Clear();
+                Children.Remove(current);
+                current = current.Next;
+            }
+        }
+        
+        public void RemoveChild(SceneNode child)
+        {
+            child.Clear();
+            Children.Remove(child);
+        }
+
         public void AddChild(SceneNode child)
         {
             Children.AddLast(child);

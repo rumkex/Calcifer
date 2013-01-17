@@ -75,6 +75,7 @@
     <Compile Include="Engine\Components\ISaveable.cs" />
     <Compile Include="Engine\Components\IService.cs" />
     <Compile Include="Engine\Components\StateService.cs" />
+    <Compile Include="Engine\Graphics\RenderComponent.cs" />
     <Compile Include="Engine\Physics\CrateComponent.cs" />
     <Compile Include="Engine\Components\KeyboardControllerComponent.cs" />
     <Compile Include="Engine\Physics\TargetConstraint.cs" />
@@ -131,9 +132,10 @@
     <Compile Include="Engine\Scenegraph\AnimationNode.cs" />
     <Compile Include="Engine\Scenegraph\BufferBatchNode.cs" />
     <Compile Include="Engine\Scenegraph\Camera.cs" />
+    <Compile Include="Engine\Scenegraph\DebugDrawNode.cs" />
     <Compile Include="Engine\Scenegraph\LightNode.cs" />
     <Compile Include="Engine\Scenegraph\MaterialNode.cs" />
-    <Compile Include="Engine\Scenegraph\Scenegraph.cs" />
+    <Compile Include="Engine\Graphics\RenderService.cs" />
     <Compile Include="Engine\Scenegraph\SceneNode.cs" />
     <Compile Include="Engine\Scenegraph\ShaderNode.cs" />
     <Compile Include="Engine\Scenegraph\TransformNode.cs" />

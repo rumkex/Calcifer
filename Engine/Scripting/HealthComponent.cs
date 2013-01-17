@@ -41,7 +41,6 @@ namespace Calcifer.Engine.Scripting
 
         public void DoDamage(int value)
         {
-            Log.WriteLine(LogLevel.Debug, "{0} received {1} damage. {2} HP left", Record.Name, value, health);
             if (value > Health)
             {
                 health = 0;
@@ -52,6 +51,7 @@ namespace Calcifer.Engine.Scripting
                 health -= value;
                 OnHit(new EntityEventArgs(Record));
             }
+            Log.WriteLine(LogLevel.Debug, "{0} received {1} damage. {2} HP left", Record.Name, value, health);
         }
 
         protected virtual void OnHit(EntityEventArgs e)

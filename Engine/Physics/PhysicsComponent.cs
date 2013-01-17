@@ -38,7 +38,10 @@ namespace Calcifer.Engine.Physics
 
         public PhysicsComponent(RigidBody body)
         {
-	        Body = body;
+            Body = body;
+            Body.Material.KineticFriction = 0.5f;
+            Body.Material.StaticFriction = 0.5f;
+            Body.Material.Restitution = 0.5f;
         }
 
         public RigidBody Body { get; private set; }

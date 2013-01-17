@@ -237,9 +237,13 @@ namespace Calcifer.Engine.Scripting
 
         private double GetAngle(string name1, string name2)
         {
-            Quaternion rotation = Get<TransformComponent>(name1).Rotation;
-            Quaternion rotation2 = Get<TransformComponent>(name2).Rotation;
-            return 2.0 * Math.Acos(rotation.X * rotation2.X + rotation.Y * rotation2.Y + rotation.Z * rotation2.Z + rotation.W * rotation2.W);
+            var t1 = Get<TransformComponent>(name1);
+            var t2 = Get<TransformComponent>(name2);
+            Vector3 direction = Vector3.Transform(Vector3.UnitX, t1.Rotation);
+            Vector3 distance = Vector3.Normalize(t2.Translation - t1.Translation);
+            var cos = Vector3.Dot(direction, distance);
+            var sin = Vector3.Cross(direction, distance).Z;
+            return Math.Atan2(cos, sin);
         }
 
         private float Distance(string name1, string name2)

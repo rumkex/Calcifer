@@ -50,7 +50,7 @@ namespace Calcifer.Engine.Physics
             var canJump = (BodyWalkingOn != null) && Body1.LinearVelocity.Z < JumpVelocity;
 
             var oldState = state;
-            if (BodyWalkingOn == null && state != State.Jumping) state = State.Falling;
+            if ((BodyWalkingOn == null && state != State.Jumping) || (-Body1.LinearVelocity.Z > FallVelocity)) state = State.Falling;
             if (state != State.Grounded && depth < 0.1f && Body1.LinearVelocity.Z < 0.0f) state = State.Grounded;
             if (canJump && TryJump) state = State.Jumping;
             if (state != oldState) Log.WriteLine(LogLevel.Debug, "switched from {0} to {1}", oldState, state);

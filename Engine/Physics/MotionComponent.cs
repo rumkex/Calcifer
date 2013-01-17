@@ -30,11 +30,15 @@ namespace Calcifer.Engine.Physics
 			phys.Synchronized += OnSynchronized;
         }
 
+        protected override void OnRemoved(ComponentStateEventArgs e)
+        {
+            phys.World.RemoveConstraint(controller);
+            base.OnRemoved(e);
+        }
+
 	    private void OnSynchronized(object sender, ComponentStateEventArgs e)
 	    {
-		    if (IsOutOfSync)
-			    phys.World.RemoveConstraint(controller);
-		    else
+		    if (!IsOutOfSync)
 			{
 				controller = new CharacterController(phys.World, phys.Body);
 			    phys.World.AddConstraint(controller);

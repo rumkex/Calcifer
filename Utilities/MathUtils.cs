@@ -105,8 +105,8 @@ namespace Calcifer.Utilities
             // Z needs to be the rotation along Z axis, minus pi/2 for some reason
             var newX = Vector3.Transform(Vector3.UnitX, q);
             var cos = Vector3.Dot(Vector3.UnitX, newX);
-            var sin = Vector3.Cross(Vector3.UnitX, newX).Z;
-            euler.Z = (float)Math.Atan2(cos, sin) - MathHelper.PiOver2;
+            var sin = -Vector3.Cross(Vector3.UnitX, newX).Z;
+            euler.Z = (float) Math.Atan2(cos, sin) + MathHelper.PiOver2;
             return euler;
         }
     }

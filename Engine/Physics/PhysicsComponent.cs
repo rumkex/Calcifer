@@ -18,6 +18,7 @@ namespace Calcifer.Engine.Physics
 	{
 		None = 0,
 		Ghost = 1,
+        Projectile = 2,
 	}
 
 	public class PhysicsComponent : DependencyComponent, ISaveable

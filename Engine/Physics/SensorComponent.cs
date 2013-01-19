@@ -55,7 +55,7 @@ namespace Calcifer.Engine.Physics
 			}
 		}
 
-		public void PostStep(float timeStep)
+        private void PostStep(float timeStep)
         {
             foreach (RigidBody body in physics.World.RigidBodies)
             {

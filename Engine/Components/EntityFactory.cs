@@ -80,9 +80,6 @@ namespace Calcifer.Engine.Components
         {
             switch (type)
             {
-                case "render":
-                    BuildRenderComponent(def, e);
-                    break;
                 case "transform":
                     BuildTransformComponent(def, e);
                     break;
@@ -104,54 +101,30 @@ namespace Calcifer.Engine.Components
                 case "health":
                     BuildHealthComponent(def, e);
                     break;
+                case "render":
+                    e.Add(new RenderComponent());
+                    break;
                 case "sensor":
-                    BuildSensorComponent(def, e);
+                    e.Add(new SensorComponent());
                     break;
                 case "crate":
-                    BuildCrateComponent(def, e);
+                    e.Add(new CrateComponent());
                     break;
                 case "motion":
-                    BuildMotionComponent(def, e);
+                    e.Add(new MotionComponent());
                     break;
                 case "movable":
-                    BuildMovableComponent(def, e);
+                    e.Add(new WaypointMovableComponent());
+                    break;
+                case "projectile":
+                    e.Add(new ProjectileComponent());
                     break;
                 case "player":
-                    BuildPlayerStateComponent(def, e);
+                    e.Add(new PlayerStateComponent());
                     break;
                 default:
                     throw new Exception("Unknown component type: " + type);
             }
-        }
-
-        private void BuildRenderComponent(EntityDefinition def, IEntityRecord entityRecord)
-        {
-            entityRecord.Add(new RenderComponent());
-        }
-
-        private void BuildPlayerStateComponent(EntityDefinition def, IEntityRecord entityRecord)
-        {
-            entityRecord.Add(new PlayerStateComponent());
-        }
-
-        private void BuildMovableComponent(EntityDefinition def, IEntityRecord entityRecord)
-        {
-            entityRecord.Add(new WaypointMovableComponent());
-        }
-
-        private void BuildMotionComponent(EntityDefinition def, IEntityRecord entityRecord)
-        {
-            entityRecord.Add(new MotionComponent());
-        }
-
-        private void BuildCrateComponent(EntityDefinition def, IEntityRecord entityRecord)
-        {
-            entityRecord.Add(new CrateComponent());
-        }
-
-        private void BuildSensorComponent(EntityDefinition def, IEntityRecord entityRecord)
-        {
-            entityRecord.Add(new SensorComponent());
         }
 
         private void BuildHealthComponent(EntityDefinition def, IEntityRecord entityRecord)

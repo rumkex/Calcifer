@@ -26,12 +26,19 @@ namespace Calcifer.Engine.Physics
 							Gravity = new JVector(0, 0, -9.81f)
 	                    };
 			World.ContactSettings.MaterialCoefficientMixing = ContactSettings.MaterialCoefficientMixingType.TakeMinimum;
-	        // Ghost objects have "Ghost" tag, so we skip them during the broadphase
-	        World.CollisionSystem.PassedBroadphase +=
-				(e1, e2) => ((BodyTags) (e1.BroadphaseTag | e2.BroadphaseTag) & BodyTags.Ghost) == BodyTags.None;
+	        World.CollisionSystem.PassedBroadphase += CheckBroadphase;
         }
 
-	    public void Synchronize(IEnumerable<IComponent> components)
+        private bool CheckBroadphase(IBroadphaseEntity e1, IBroadphaseEntity e2)
+        {
+            // Ghost objects have "Ghost" tag, so we skip them during the broadphase
+            var tag1 = (BodyTags) (e1.BroadphaseTag);
+            var tag2 = (BodyTags) (e2.BroadphaseTag);
+            if ((tag1 & tag2 & BodyTags.Projectile) == BodyTags.Projectile) return false;
+            return ((tag1 | tag2) & BodyTags.Ghost) == BodyTags.None;
+        }
+
+        public void Synchronize(IEnumerable<IComponent> components)
         {
             foreach (var c in components.OfType<PhysicsComponent>())
             {

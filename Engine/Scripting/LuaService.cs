@@ -10,6 +10,7 @@ using Calcifer.Utilities.Logging;
 using ComponentKit;
 using ComponentKit.Model;
 using System;
+using Jitter.LinearMath;
 using LuaInterface.Exceptions;
 using OpenTK;
 using OpenTK.Input;
@@ -24,8 +25,13 @@ namespace Calcifer.Engine.Scripting
         private LuaComponent currentScript;
         private Random rand;
         private int lights;
-        public LuaService()
+
+        private EntityFactory factory;
+
+        public LuaService(EntityFactory factory)
         {
+            this.factory = factory;
+
             lua = new Lua();
 			cache = new Dictionary<LuaComponent, LuaFunction>();
             rand = new Random();
@@ -93,8 +99,8 @@ namespace Calcifer.Engine.Scripting
                                                                                    r.Drop(Entity.Find(name));
                                                                                    r.Synchronize();
                                                                                }).Method);
-            lua.RegisterFunction("has_waited", this, new Func<string, bool>(s => !currentScript.IsWaiting).Method);
-            lua.RegisterFunction("wait", this, new Action<string, int>((name, count) => currentScript.Wait(count / 60f)).Method);
+            lua.RegisterFunction("has_waited", this, new Func<string, bool>(name => !Get<LuaComponent>(name).IsWaiting).Method);
+            lua.RegisterFunction("wait", this, new Action<string, int>((name, count) => Get<LuaComponent>(name).Wait(count/30f)).Method);
         }
         
         private void InitializeKeyboard()
@@ -126,12 +132,11 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("get_pos_x", this, new Func<string, float>(name => Get<TransformComponent>(name).Translation.X).Method);
             lua.RegisterFunction("get_pos_y", this, new Func<string, float>(name => Get<TransformComponent>(name).Translation.Y).Method);
             lua.RegisterFunction("get_pos_z", this, new Func<string, float>(name => Get<TransformComponent>(name).Translation.Z).Method);
-            lua.RegisterFunction("get_rot_x", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().X * 180f / 3.14159274f).Method);
-            lua.RegisterFunction("get_rot_y", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().Y * 180f / 3.14159274f).Method);
-            lua.RegisterFunction("get_rot_z", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToPitchYawRoll().Z * 180f / 3.14159274f).Method);
+            lua.RegisterFunction("get_rot_x", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToEuler().X * 180f / 3.14159274f).Method);
+            lua.RegisterFunction("get_rot_y", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToEuler().Y * 180f / 3.14159274f).Method);
+            lua.RegisterFunction("get_rot_z", this, new Func<string, float>(name => Get<TransformComponent>(name).Rotation.ToEuler().Z * 180f / 3.14159274f).Method);
             lua.RegisterFunction("angle", this, new Func<string, string, double>(GetAngle).Method);
             lua.RegisterFunction("distance", this, new Func<string, string, double>((name1, name2) => Distance(name1, name2)).Method);
-            lua.RegisterFunction("set_pos", this, new Action<string, float, float, float>((name, x, y, z) => Get<TransformComponent>(name).Translation = new Vector3(x, y, z)).Method);
             lua.RegisterFunction("move_step_local", this, new Action<string, float, float, float>((name, x, y, z) =>
 	                {
 						var v = Vector3.Transform(-new Vector3(x, y, z) * 30f, Get<TransformComponent>(name).Rotation);
@@ -156,13 +161,23 @@ namespace Calcifer.Engine.Scripting
 
         private void InitializePhysics()
         {
+            lua.RegisterFunction("set_pos", this, new Action<string, float, float, float>(SetPosition).Method);
             lua.RegisterFunction("collision_between", this, new Func<string, string, bool>(
                 (sensor, entity) => Get<PhysicsComponent>(sensor).CollidesWith(Get<PhysicsComponent>(entity).Body)
                 ).Method);
             lua.RegisterFunction("set_gravity", this,  new Action<string, float>((name, value) => { }).Method);
             lua.RegisterFunction("set_restitution", this, new Action<string, float>((name, value) => { }).Method);
-			lua.RegisterFunction("set_speed", this, new Action<string, float, float, float>((name, x, y, z) => { }).Method);
+			lua.RegisterFunction("set_speed", this, new Action<string, float, float, float>((name, x, y, z) => Get<PhysicsComponent>(name).Body.LinearVelocity = new JVector(x, y, z)).Method);
             lua.RegisterFunction("get_floor_material", this, new Func<string, string>(name => Get<MotionComponent>(name).GetFloorMaterial()).Method);
+        }
+
+        private void SetPosition(string name, float x, float y, float z)
+        {
+            var phys = Get<PhysicsComponent>(name);
+            if (phys != null)
+                phys.Body.Position = new JVector(x, y, z);
+            else
+                Get<TransformComponent>(name).Translation = new Vector3(x, y, z);
         }
 
         private void InitializeAnimation()
@@ -266,9 +281,8 @@ namespace Calcifer.Engine.Scripting
         private T Get<T>(string name) where T : Component
         {
 	        var e = Entity.Find(name);
-	        if (e == null) throw new LuaException(name + " does not exist");
+            if (e == null) return null;
 		    var t = e.GetComponent(default(T), true);
-	        if (t == null) throw new LuaException(typeof (T) + " not present in " + name);
 			return t;
         }
 
@@ -287,8 +301,11 @@ namespace Calcifer.Engine.Scripting
 
         private void AddObject(string map, string nameInMap, string name)
         {
-            var e = Entity.Create(name, new TransformComponent());
-            Log.WriteLine(LogLevel.Warning, "Created dummy entity '{0}'", name);
+            var pos = nameInMap.LastIndexOf('.');
+            var entityClass = (pos < 0) ? nameInMap : nameInMap.Substring(0, pos);
+            var e = factory.Create(name, entityClass);
+            EntityRegistry.Current.Synchronize();
+            Log.WriteLine(LogLevel.Debug, "Created {0}", e.Name);
         }
     }
 }

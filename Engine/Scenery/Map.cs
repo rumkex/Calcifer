@@ -1,76 +1,47 @@
-using System.Collections.Generic;
-using System.Xml;
-using System.Xml.Schema;
+using System.Collections.ObjectModel;
 using System.Xml.Serialization;
 
 namespace Calcifer.Engine.Scenery
 {
-	[XmlRoot("map", Namespace = "urn:Map")]
-	public class Map : IXmlSerializable
-	{
-		public Dictionary<string, AssetReference> Assets
-		{
-			get;
-			set;
-		}
-		public Dictionary<string, EntityDefinition> Entities
-		{
-			get;
-			set;
-		}
-		public static XmlSerializerNamespaces Namespaces
-		{
-			get
-			{
-				var xmlSerializerNamespaces = new XmlSerializerNamespaces();
-				xmlSerializerNamespaces.Add("", "urn:Map");
-				return xmlSerializerNamespaces;
-			}
-		}
-		public Map()
-		{
-			this.Assets = new Dictionary<string, AssetReference>();
-			this.Entities = new Dictionary<string, EntityDefinition>();
-		}
-		public XmlSchema GetSchema()
-		{
-			return null;
-		}
-		public void ReadXml(XmlReader reader)
-		{
-			var assetSerializer = new XmlSerializer(typeof(AssetReference));
-			var entitySerializer = new XmlSerializer(typeof(EntityDefinition));
-			if (reader.MoveToContent() != XmlNodeType.Element || reader.LocalName != "map")
-			{
-				return;
-			}
-			if (reader.ReadToDescendant("asset"))
-			{
-				while (reader.MoveToContent() == XmlNodeType.Element && reader.LocalName == "asset")
-				{
-				    var assetReference = assetSerializer.Deserialize(reader) as AssetReference;
-				    if (assetReference != null) Assets.Add(assetReference.Name, assetReference);
-				}
-			    while (reader.MoveToContent() == XmlNodeType.Element && reader.LocalName == "entity")
-			    {
-			        var entityDefinition = entitySerializer.Deserialize(reader) as EntityDefinition;
-			        if (entityDefinition != null) Entities.Add(entityDefinition.Name, entityDefinition);
-			    }
-			}
-			reader.ReadEndElement();
-		}
-		public void WriteXml(XmlWriter writer)
-		{
-			var assetSerializer = new XmlSerializer(typeof(AssetReference));
-			var entitySerializer = new XmlSerializer(typeof(EntityDefinition));
-			foreach (var assetEntry in Assets)
-			{
-				assetSerializer.Serialize(writer, assetEntry.Value, Map.Namespaces);
-			}
-			foreach (var entityEntry in Entities)
-			{
-				entitySerializer.Serialize(writer, entityEntry.Value, Map.Namespaces);
-			}
-		}
-	}
+    [XmlRoot("map")]
+    public class Map
+    {
+        [XmlArray("assets"), XmlArrayItem("asset")]
+        public AssetCollection Assets { get; private set; }
+        [XmlArray("definitions"), XmlArrayItem("definition")]
+        public DefinitionCollection Definitions { get; private set; }
+        [XmlArray("instances"), XmlArrayItem("instance")]
+        public InstanceCollection Instances { get; private set; }
+
+        public Map()
+        {
+            Assets = new AssetCollection();
+            Definitions = new DefinitionCollection();
+            Instances = new InstanceCollection();
+        }
+    }
+
+    public class AssetCollection: KeyedCollection<string, AssetReference>
+    {
+        protected override string GetKeyForItem(AssetReference item)
+        {
+            return item.Name;
+        }
+    }
+
+    public class DefinitionCollection: KeyedCollection<string, EntityDefinition>
+    {
+        protected override string GetKeyForItem(EntityDefinition item)
+        {
+            return item.Name;
+        }
+    }
+
+    public class InstanceCollection : KeyedCollection<string, EntityInstance>
+    {
+        protected override string GetKeyForItem(EntityInstance item)
+        {
+            return item.Name;
+        }
+    }
 }

@@ -98,12 +98,16 @@ namespace Calcifer.Utilities
             return new Quaternion(v.X, v.Y, v.Z, v.W);
         }
 
-        public static Vector3 ToPitchYawRoll(this Quaternion q)
+        public static Vector3 ToEuler(this Quaternion q)
         {
-            var x = (float)Math.Asin(2f * (q.X * q.Z - q.W * q.Y)); // Pitch
-            var y = (float)Math.Atan2(2f * q.X * q.W + 2f * q.Y * q.Z, 1 - 2f * (q.Z * q.Z + q.W * q.W)); // Yaw 
-            var z = (float)Math.Atan2(2f * q.X * q.Y + 2f * q.Z * q.W, 1 - 2f * (q.Y * q.Y + q.Z * q.Z)); // Roll 
-            return new Vector3(x, y, z);
+            var euler = new Vector3();
+
+            // Z needs to be the rotation along Z axis, minus pi/2 for some reason
+            var newX = Vector3.Transform(Vector3.UnitX, q);
+            var cos = Vector3.Dot(Vector3.UnitX, newX);
+            var sin = Vector3.Cross(Vector3.UnitX, newX).Z;
+            euler.Z = (float)Math.Atan2(cos, sin) - MathHelper.PiOver2;
+            return euler;
         }
     }
 }

@@ -161,7 +161,7 @@ namespace Calcifer.Engine.Scripting
 
         private void InitializePhysics()
         {
-            lua.RegisterFunction("set_pos", this, new Action<string, float, float, float>(SetPosition).Method);
+            lua.RegisterFunction("set_pos", this, new Action<string, float, float, float>((name, x, y, z) => Get<TransformComponent>(name).Translation = new Vector3(x, y, z)).Method);
             lua.RegisterFunction("collision_between", this, new Func<string, string, bool>(
                 (sensor, entity) => Get<PhysicsComponent>(sensor).CollidesWith(Get<PhysicsComponent>(entity).Body)
                 ).Method);
@@ -169,15 +169,6 @@ namespace Calcifer.Engine.Scripting
             lua.RegisterFunction("set_restitution", this, new Action<string, float>((name, value) => { }).Method);
 			lua.RegisterFunction("set_speed", this, new Action<string, float, float, float>((name, x, y, z) => Get<PhysicsComponent>(name).Body.LinearVelocity = new JVector(x, y, z)).Method);
             lua.RegisterFunction("get_floor_material", this, new Func<string, string>(name => Get<MotionComponent>(name).GetFloorMaterial()).Method);
-        }
-
-        private void SetPosition(string name, float x, float y, float z)
-        {
-            var phys = Get<PhysicsComponent>(name);
-            if (phys != null)
-                phys.Body.Position = new JVector(x, y, z);
-            else
-                Get<TransformComponent>(name).Translation = new Vector3(x, y, z);
         }
 
         private void InitializeAnimation()

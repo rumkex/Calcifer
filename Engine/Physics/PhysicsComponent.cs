@@ -25,6 +25,7 @@ namespace Calcifer.Engine.Physics
         [RequireComponent] private TransformComponent transform = null;
 
 		private Transform baseTransform = Transform.Identity;
+        private Vector3 storedScale;
 
 		public event EventHandler<ComponentStateEventArgs> Synchronized;
 
@@ -60,15 +61,25 @@ namespace Calcifer.Engine.Physics
             Body.Position = offset + transform.Translation.ToJVector();
 			baseTransform = new Transform(JQuaternion.CreateFromMatrix(Body.Orientation).ToQuaternion(),
 										 Body.Position.ToVector3()).Invert() * new Transform(transform.Rotation, transform.Translation);
-            transform.Bind(TransformFeedback);
+            storedScale = transform.Scale;
+            transform.Bind(GetTransform, SetTransform);
         }
 
-        private ScalableTransform TransformFeedback()
+        private void SetTransform(ScalableTransform t)
+        {
+            storedScale = t.Scale;
+            var tr = new Transform(t.Rotation, t.Translation);
+            var current = tr*baseTransform.Invert();
+            Body.Position = current.Translation.ToJVector();
+            Body.Orientation = JMatrix.CreateFromQuaternion(current.Rotation.ToQuaternion());
+        }
+
+        private ScalableTransform GetTransform()
         {
 			var current = new Transform(JQuaternion.CreateFromMatrix(Body.Orientation).ToQuaternion(),
 										 Body.Position.ToVector3());
 	        var t = current*baseTransform;
-			return new ScalableTransform(t.Rotation, t.Translation);
+            return new ScalableTransform(t.Rotation, t.Translation, storedScale);
         }
 
         public bool CollidesWith(RigidBody other)

@@ -10,45 +10,53 @@ namespace Calcifer.Engine.Components
 	{
 		private ScalableTransform transform;
 		private Func<ScalableTransform> transformCallback;
+	    private Action<ScalableTransform> transformFeedback;
 
-		public ScalableTransform Transform
+	    public ScalableTransform Transform
 		{
 			get
 			{
-				return (transformCallback != null) ? transformCallback() : transform;
+                if (transformCallback != null) transform = transformCallback();
+				return transform;
 			}
 		}
 		public Vector3 Translation
 		{
 			get
 			{
-				return this.Transform.Translation;
+				return Transform.Translation;
 			}
 			set
 			{
-				this.transform.Translation = value;
+			    transform = Transform;
+				transform.Translation = value;
+			    if (transformFeedback != null) transformFeedback(transform);
 			}
 		}
 		public Quaternion Rotation
 		{
 			get
 			{
-				return this.Transform.Rotation;
+				return Transform.Rotation;
 			}
 			set
-			{
-				this.transform.Rotation = value;
+            {
+                transform = Transform;
+                transform.Rotation = value;
+                if (transformFeedback != null) transformFeedback(transform);
 			}
 		}
 		public Vector3 Scale
 		{
 			get
 			{
-				return transform.Scale;
+				return Transform.Scale;
 			}
 			set
-			{
-				this.transform.Scale = value;
+            {
+                transform = Transform;
+                transform.Scale = value;
+                if (transformFeedback != null) transformFeedback(transform);
 			}
 		}
 		public Matrix4 Matrix
@@ -63,13 +71,15 @@ namespace Calcifer.Engine.Components
 			this.transform = new ScalableTransform(Quaternion.Identity, Vector3.Zero);
 		}
 
-		public void Bind(Func<ScalableTransform> callback)
+		public void Bind(Func<ScalableTransform> callback, Action<ScalableTransform> feedback)
 		{
-			this.transformCallback = callback;
+			transformCallback = callback;
+		    transformFeedback = feedback;
 		}
 		public void Unbind()
 		{
-			this.transformCallback = null;
+            transformCallback = null;
+            transformFeedback = null;
 		}
 
 	    public void SaveState(BinaryWriter writer)

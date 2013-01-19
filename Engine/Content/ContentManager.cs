@@ -57,7 +57,6 @@ namespace Calcifer.Engine.Content
                 T cachedResult = resourceCache[assetName].OfType<T>().FirstOrDefault();
                 if (cachedResult != null)
                 {
-                    Log.WriteLine(LogLevel.Debug, "instantiated '{0}'", assetName);
 	                var clone = cachedResult.Clone() as T;
 	                return clone;
                 }

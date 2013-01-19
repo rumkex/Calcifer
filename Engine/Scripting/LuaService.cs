@@ -201,11 +201,13 @@ namespace Calcifer.Engine.Scripting
                                                                                       if (!wounded.ContainsKey(name)) wounded.Add(name, false);
                                                                                       return wounded[name];
                                                                                   }).Method);
-            lua.RegisterFunction("set_wounded", this,  new Action<string, bool>((name, value) =>
-                                                                                    {
-                                                                                        if (!wounded.ContainsKey(name)) wounded.Add(name, false);
-                                                                                        wounded[name] = value;
-                                                                                    }).Method);
+            lua.RegisterFunction("set_wounded", this,  new Action<string, bool>(SetWounded).Method);
+        }
+
+        public void SetWounded(string name, bool value)
+        {
+            if (!wounded.ContainsKey(name)) wounded.Add(name, false);
+            wounded[name] = value;
         }
 
         private void InitializeSound()
@@ -219,26 +221,10 @@ namespace Calcifer.Engine.Scripting
         private void InitializeText()
         {
             lua.RegisterFunction("get_choice", this, new Func<string>(() => "choice").Method);
-			lua.RegisterFunction("i_set_choices", this, GetType().GetMethod("SetChoices"));
+            lua.RegisterFunction("i_set_choices", this, new Action<LuaTable>(t => {foreach (var o in t.Values) Console.WriteLine(o);}).Method);
 			lua.DoString("function set_choices(...) i_set_choices({...}) end");
-			lua.RegisterFunction("i_set_messages", this, GetType().GetMethod("SetMessages"));
+            lua.RegisterFunction("i_set_messages", this, new Action<LuaTable>(t => {foreach (var o in t.Values) Console.WriteLine(o);}).Method);
 	        lua.DoString("function set_messages(...) i_set_messages({...}) end");
-        }
-
-		public void SetMessages(LuaTable args)
-		{
-			foreach (var o in args.Values)
-			{
-				Console.WriteLine(o.ToString());
-			}
-		}
-
-		public void SetChoices(LuaTable args)
-        {
-            foreach (var o in args.Values)
-            {
-                Console.WriteLine(o);
-            }
         }
 
         private double GetAngle(string name1, string name2)
@@ -296,7 +282,6 @@ namespace Calcifer.Engine.Scripting
             var entityClass = (pos < 0) ? nameInMap : nameInMap.Substring(0, pos);
             var e = factory.Create(name, entityClass);
             EntityRegistry.Current.Synchronize();
-            Log.WriteLine(LogLevel.Debug, "Created {0}", e.Name);
         }
     }
 }

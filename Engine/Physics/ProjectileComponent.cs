@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Calcifer.Engine.Scripting;
 using Calcifer.Utilities.Logging;
 using ComponentKit.Model;
 using Jitter;
@@ -9,6 +10,7 @@ using Jitter.Collision;
 using Jitter.Collision.Shapes;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
+using OpenTK;
 
 namespace Calcifer.Engine.Physics
 {
@@ -18,7 +20,6 @@ namespace Calcifer.Engine.Physics
     // * Component raises Hit event.
     class ProjectileComponent: DependencyComponent
     {
-        private RigidBody owner;
         [RequireComponent] private PhysicsComponent physics;
 
         public event EventHandler<SensorEventArgs> EntityHit;
@@ -36,17 +37,16 @@ namespace Calcifer.Engine.Physics
 		{
 			base.OnAdded(registrationArgs);
 			if (physics.Body.Shape is Multishape) throw new NotSupportedException("Multishapes not supported!");
-            physics.Body.BroadphaseTag |= (int)BodyTags.Ghost;
             physics.Body.BroadphaseTag |= (int)BodyTags.Projectile;
+            physics.Body.SetMassProperties(JMatrix.Identity, 0.1f, false);
 			physics.Synchronized += syncHandler;
 		}
 
 		protected override void OnRemoved(ComponentStateEventArgs registrationArgs)
         {
-            physics.Body.BroadphaseTag ^= (int)BodyTags.Ghost;
-            physics.Body.BroadphaseTag ^= (int)BodyTags.Projectile;
+            physics.Body.BroadphaseTag &= ~(int)BodyTags.Projectile;
             physics.Synchronized -= syncHandler;
-            if (postStepHandler != null) physics.World.Events.PostStep -= postStepHandler;
+            physics.World.Events.PostStep -= postStepHandler;
 			base.OnRemoved(registrationArgs);
 		}
 
@@ -54,48 +54,27 @@ namespace Calcifer.Engine.Physics
 		{
             if (IsOutOfSync) return;
             physics.World.Events.PostStep += postStepHandler;
-		    foreach (RigidBody body in physics.World.RigidBodies)
-		    {
-		        var orientation = physics.Body.Orientation;
-		        var position = physics.Body.Position;
-		        var bodyPosition = body.Position;
-		        var bodyOrientation = body.Orientation;
-		        JVector point, normal;
-		        float penetration;
-		        var collide = XenoCollide.Detect(physics.Body.Shape, body.Shape, ref orientation, ref bodyOrientation,
-		                                         ref position, ref bodyPosition, out point, out normal, out penetration);
-		        if (collide 
-                    && (body.BroadphaseTag == 0) // Projectiles and ghosts can't be projectile owners
-                    && !(body.Shape is Multishape)) // Multishapes aren't supported
-		        {
-                    owner = body;
-                    return;
-		        }
-		    }
 		}
 
         private void PostStep(float timeStep)
         {
-            if (owner != null)
+            foreach (Arbiter arbiter in physics.Body.Arbiters)
             {
-                var collide = physics.World.CollisionSystem.CheckBoundingBoxes(physics.Body, owner); 
-                if (collide) return;
-                var orientation = physics.Body.Orientation;
-                var position = physics.Body.Position;
-                var ownerPosition = owner.Position;
-                var ownerOrientation = owner.Orientation;
-                JVector point, normal;
-                float penetration;
-                collide = XenoCollide.Detect(physics.Body.Shape, owner.Shape, ref orientation, ref ownerOrientation,
-                                                ref position, ref ownerPosition, out point, out normal, out penetration);
-                if (collide) return;
+                var other = (arbiter.Body1 != physics.Body) ? arbiter.Body1 : arbiter.Body2;
+                var dir = JVector.Normalize(other.Position - physics.Body.Position);
+                var vel = JVector.Normalize(physics.Body.LinearVelocity);
+                if (JVector.Dot(vel, dir) > -0.5f) // Hit only if the projectile is moving towards the body
+                { 
+                    var entity = Entity.Find(other.Tag.ToString());
+                    if (entity == null) continue;
+                    //if (entity.Name == "heroe") continue;
+                    if (!entity.HasComponent<HealthComponent>()) continue;
+                    if (!entity.HasComponent<LuaComponent>()) continue;
+                    // The same ugly hax that is used in LSA
+                    // TODO: Fix ugly hax
+                    entity.GetComponent<LuaComponent>().Service.SetWounded(entity.Name, true);
+                }
             }
-            // Left the owner, deghostifying
-            if (owner != null)
-                Log.WriteLine(LogLevel.Debug, "Projectile {0} left its owner, {1}", Record.Name, owner.Tag);
-            physics.Body.BroadphaseTag ^= (int)BodyTags.Ghost;
-            physics.World.Events.PostStep -= postStepHandler;
-            postStepHandler = null;
         }
     }
 }

@@ -167,7 +167,7 @@ namespace Calcifer.Engine.Scripting
                 ).Method);
             lua.RegisterFunction("set_gravity", this,  new Action<string, float>((name, value) => { }).Method);
             lua.RegisterFunction("set_restitution", this, new Action<string, float>((name, value) => { }).Method);
-			lua.RegisterFunction("set_speed", this, new Action<string, float, float, float>((name, x, y, z) => Get<PhysicsComponent>(name).Body.LinearVelocity = new JVector(x, y, z)).Method);
+            lua.RegisterFunction("set_speed", this, new Action<string, float, float, float>((name, x, y, z) => Get<PhysicsComponent>(name).Body.LinearVelocity = 30f * new JVector(x, y, z)).Method);
             lua.RegisterFunction("get_floor_material", this, new Func<string, string>(name => Get<MotionComponent>(name).GetFloorMaterial()).Method);
         }
 

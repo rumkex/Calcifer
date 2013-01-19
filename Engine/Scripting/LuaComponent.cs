@@ -19,7 +19,7 @@ namespace Calcifer.Engine.Scripting
 
         public bool IsWaiting
         {
-            get { return wait < 0f; }
+            get { return wait > 0f; }
         }
 
         public void Update(double dt)

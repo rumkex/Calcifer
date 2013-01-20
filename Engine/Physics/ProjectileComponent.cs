@@ -26,11 +26,11 @@ namespace Calcifer.Engine.Physics
 		
 		public ProjectileComponent()
 		{
-		    postStepHandler = PostStep;
+		    collideHandler = OnCollide;
 			syncHandler = Synchronized;
 		}
 
-		private World.WorldStep postStepHandler;
+		private Action<RigidBody, RigidBody> collideHandler;
 		private EventHandler<ComponentStateEventArgs> syncHandler;
 
 		protected override void OnAdded(ComponentStateEventArgs registrationArgs)
@@ -46,35 +46,34 @@ namespace Calcifer.Engine.Physics
         {
             physics.Body.BroadphaseTag &= ~(int)BodyTags.Projectile;
             physics.Synchronized -= syncHandler;
-            physics.World.Events.PostStep -= postStepHandler;
+		    physics.World.Events.BodiesBeginCollide -= collideHandler;
 			base.OnRemoved(registrationArgs);
 		}
 
 		private void Synchronized(object sender, ComponentStateEventArgs componentStateEventArgs)
 		{
             if (IsOutOfSync) return;
-            physics.World.Events.PostStep += postStepHandler;
+            physics.World.Events.BodiesBeginCollide += collideHandler;
 		}
 
-        private void PostStep(float timeStep)
+        private void OnCollide(RigidBody first, RigidBody second)
         {
-            foreach (Arbiter arbiter in physics.Body.Arbiters)
-            {
-                var other = (arbiter.Body1 != physics.Body) ? arbiter.Body1 : arbiter.Body2;
-                var dir = JVector.Normalize(other.Position - physics.Body.Position);
-                var vel = JVector.Normalize(physics.Body.LinearVelocity);
-                if (JVector.Dot(vel, dir) > -0.5f) // Hit only if the projectile is moving towards the body
-                { 
-                    var entity = Entity.Find(other.Tag.ToString());
-                    if (entity == null) continue;
-                    //if (entity.Name == "heroe") continue;
-                    if (!entity.HasComponent<HealthComponent>()) continue;
-                    if (!entity.HasComponent<LuaComponent>()) continue;
-                    // The same ugly hax that is used in LSA
-                    // TODO: Fix ugly hax
-                    entity.GetComponent<LuaComponent>().Service.SetWounded(entity.Name, true);
-                }
-            }
+            RigidBody other;
+            if (first == physics.Body)
+                other = second;
+            else if (second == physics.Body)
+                other = first;
+            else return;
+            var otherEntity = other.Tag.ToString();
+            var dir = JVector.Normalize(other.Position - physics.Body.Position);
+            var vel = JVector.Normalize(physics.Body.LinearVelocity);
+            if (!(JVector.Dot(vel, dir) > 0f)) return;
+            var entity = Entity.Find(otherEntity);
+            if (entity == null || !entity.HasComponent<HealthComponent>() || !entity.HasComponent<LuaComponent>()) return;
+            Log.WriteLine(LogLevel.Debug, "Hit detected on {0}", entity.Name);
+            // The same ugly hax that is used in LSA
+            // TODO: Fix ugly haх
+            entity.GetComponent<LuaComponent>().Service.SetWounded(entity.Name, true);
         }
     }
 }

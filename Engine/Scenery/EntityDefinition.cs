@@ -57,6 +57,15 @@ namespace Calcifer.Engine.Scenery
         {
             return item.Component + ":" + item.Name;
         }
+
+        public string this[string component, string key]
+        {
+            get
+            {
+                var k = component + ":" + key;
+                return Contains(k) ? this[k].Value: null;
+            }
+        }
     }
 
 

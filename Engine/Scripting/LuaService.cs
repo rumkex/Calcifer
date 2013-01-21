@@ -26,12 +26,9 @@ namespace Calcifer.Engine.Scripting
         private Random rand;
         private int lights;
 
-        private EntityFactory factory;
 
-        public LuaService(EntityFactory factory)
+        public LuaService()
         {
-            this.factory = factory;
-
             lua = new Lua();
 			cache = new Dictionary<LuaComponent, LuaFunction>();
             rand = new Random();
@@ -280,7 +277,7 @@ namespace Calcifer.Engine.Scripting
         {
             var pos = nameInMap.LastIndexOf('.');
             var entityClass = (pos < 0) ? nameInMap : nameInMap.Substring(0, pos);
-            var e = factory.Create(name, entityClass);
+            var e = EntityFactory.Create(name, entityClass);
             EntityRegistry.Current.Synchronize();
         }
     }

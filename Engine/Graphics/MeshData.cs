@@ -6,7 +6,7 @@ using ComponentKit.Model;
 namespace Calcifer.Engine.Graphics
 {
     // TODO: Make MeshComponent (RenderComponent) a separate entity
-    public class MeshData : Component, IResource
+    public class MeshData : IResource
     {
         public List<Geometry> Submeshes { get; private set; }
 

@@ -16,8 +16,12 @@ namespace Calcifer.Engine.Graphics
 {
     public class RenderComponent: DependencyComponent
     {
-        public RenderComponent()
-        {}
+        private MeshData meshData;
+
+        public RenderComponent(MeshData mesh)
+        {
+            meshData = mesh;
+        }
 
         private SceneNode localRoot, localParent;
 
@@ -29,7 +33,6 @@ namespace Calcifer.Engine.Graphics
             if (physicsComponent != null) new DebugDrawNode(parent, physicsComponent.Body);
 
             var transformComponent = Record.GetComponent<TransformComponent>();
-            var meshData = Record.GetComponent<MeshData>();
             if (meshData == null) return;
             parent = new TransformNode(parent, transformComponent ?? new TransformComponent());
             var animationComponent = Record.GetComponent(default(AnimationComponent), true);

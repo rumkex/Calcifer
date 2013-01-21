@@ -148,6 +148,7 @@
     <Compile Include="Engine\Scenery\Map.cs" />
     <Compile Include="Engine\Scenery\MapBuilder.cs" />
     <Compile Include="Engine\EngineException.cs" />
+    <Compile Include="Engine\Scenery\ResourceFactory.cs" />
     <Compile Include="Engine\Scripting\PlayerStateComponent.cs" />
     <Compile Include="Engine\Scripting\HealthComponent.cs" />
     <Compile Include="Engine\Scripting\LuaComponent.cs" />

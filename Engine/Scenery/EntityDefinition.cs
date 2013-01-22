@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Xml;
-using System.Xml.Schema;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace Calcifer.Engine.Scenery
@@ -58,16 +57,11 @@ namespace Calcifer.Engine.Scenery
             return item.Component + ":" + item.Name;
         }
 
-        public string this[string component, string key]
+        public IDictionary<string, string> GetComponent(string type)
         {
-            get
-            {
-                var k = component + ":" + key;
-                return Contains(k) ? this[k].Value: null;
-            }
+            return this.Where(p => p.Component == type).ToDictionary(p => p.Name, p => p.Value);
         }
     }
-
 
     [XmlRoot("param")]
     public class Parameter

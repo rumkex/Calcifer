@@ -60,7 +60,7 @@ namespace Calcifer.Engine.Components
                 var entity = Entity.Find(name);
                 var ctype = reader.ReadString();
                 var saveable = entity.GetComponents().FirstOrDefault(c => c.GetType().Name == ctype) as ISaveable;
-                if (saveable != null) 
+                if (saveable != null)
                     saveable.RestoreState(reader);
                 else 
                     throw new SerializationException(string.Format("Component type {0} isn't ISaveable", ctype));

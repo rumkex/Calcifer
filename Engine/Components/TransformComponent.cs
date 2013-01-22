@@ -1,12 +1,15 @@
+using System.Collections.Generic;
 using System.IO;
 using Calcifer.Engine.Graphics.Primitives;
+using Calcifer.Engine.Scenery;
+using Calcifer.Utilities;
 using ComponentKit.Model;
 using OpenTK;
 using System;
 
 namespace Calcifer.Engine.Components
 {
-	public class TransformComponent : Component, ISaveable
+	public class TransformComponent : Component, ISaveable, IConstructable
 	{
 		private ScalableTransform transform;
 		private Func<ScalableTransform> transformCallback;
@@ -101,6 +104,16 @@ namespace Calcifer.Engine.Components
             transform.Translation = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
             transform.Rotation = new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
             transform.Scale = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+	    }
+
+	    void IConstructable.Construct(IDictionary<string, string> param)
+	    {
+            var r = param["rotation"].ConvertToVector();
+	        Translation = param["translation"].ConvertToVector();
+	        Rotation = Quaternion.FromAxisAngle(Vector3.UnitX, r.X)*
+	                   Quaternion.FromAxisAngle(Vector3.UnitY, r.Y)*
+	                   Quaternion.FromAxisAngle(Vector3.UnitZ, r.Z);
+	        Scale = param["scale"].ConvertToVector();
 	    }
 	}
 }

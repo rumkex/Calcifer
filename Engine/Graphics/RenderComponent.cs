@@ -3,26 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Calcifer.Engine.Components;
+using Calcifer.Engine.Content;
 using Calcifer.Engine.Graphics.Animation;
 using Calcifer.Engine.Graphics.Buffers;
 using Calcifer.Engine.Graphics.Primitives;
 using Calcifer.Engine.Physics;
 using Calcifer.Engine.Scenegraph;
+using Calcifer.Engine.Scenery;
 using ComponentKit;
 using ComponentKit.Model;
 using OpenTK.Graphics.OpenGL;
 
 namespace Calcifer.Engine.Graphics
 {
-    public class RenderComponent: DependencyComponent
+    public class RenderComponent: DependencyComponent, IConstructable
     {
         private MeshData meshData;
-
-        public RenderComponent(MeshData mesh)
-        {
-            meshData = mesh;
-        }
-
+        
         private SceneNode localRoot, localParent;
 
         public void Attach(SceneNode parent)
@@ -65,6 +62,11 @@ namespace Calcifer.Engine.Graphics
         {
             base.OnRemoved(e);
             localParent.RemoveChild(localRoot);
+        }
+
+        void IConstructable.Construct(IDictionary<string, string> param)
+        {
+            meshData = ResourceFactory.LoadAsset<MeshData>(param["meshData"]);
         }
     }
 }

@@ -56,8 +56,9 @@ namespace Calcifer.Engine.Scenery
             return result;
         }
         
-        public void BeginComponent(string type)
+        public void BeginComponent<T>()
         {
+            var type = typeof (T).Name;
             if (currentComponent != null) throw new InvalidOperationException("Component stack not empty.");
             currentComponent = type;
         }

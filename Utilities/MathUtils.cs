@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Jitter.LinearMath;
@@ -108,6 +109,12 @@ namespace Calcifer.Utilities
             var sin = -Vector3.Cross(Vector3.UnitX, newX).Z;
             euler.Z = (float) Math.Atan2(cos, sin) + MathHelper.PiOver2;
             return euler;
+        }
+
+        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue @default)
+        {
+            TValue v;
+            return dict.TryGetValue(key, out v) ? v : @default;
         }
     }
 }

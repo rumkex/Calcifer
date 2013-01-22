@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Calcifer.Engine.Content;
 using Calcifer.Engine.Content.Pipeline;
+using Calcifer.Engine.Scenery;
 
-namespace Calcifer.Engine.Scenery
+namespace Calcifer.Engine.Content
 {
     public static class ResourceFactory
     {

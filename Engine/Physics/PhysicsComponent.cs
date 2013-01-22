@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using Calcifer.Engine.Components;
+using Calcifer.Engine.Content;
 using Calcifer.Engine.Graphics.Primitives;
+using Calcifer.Engine.Scenery;
 using Calcifer.Utilities;
 using ComponentKit;
 using ComponentKit.Model;
 using Jitter;
+using Jitter.Collision;
 using Jitter.Collision.Shapes;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
@@ -21,31 +27,15 @@ namespace Calcifer.Engine.Physics
         Projectile = 2,
 	}
 
-	public class PhysicsComponent : DependencyComponent, ISaveable
-    {
+	public class PhysicsComponent : DependencyComponent, ISaveable, IConstructable
+	{
         [RequireComponent] private TransformComponent transform = null;
 
 		private Transform baseTransform = Transform.Identity;
         private Vector3 storedScale;
 
 		public event EventHandler<ComponentStateEventArgs> Synchronized;
-
-		public PhysicsComponent()
-		{
-			Body = new RigidBody(new SphereShape(0.0f))
-			{
-				IsStatic = true
-			};
-		}
-
-        public PhysicsComponent(RigidBody body)
-        {
-            Body = body;
-            Body.Material.KineticFriction = 0.5f;
-            Body.Material.StaticFriction = 0.5f;
-            Body.Material.Restitution = 0.5f;
-        }
-
+        
         public RigidBody Body { get; private set; }
         public Vector3 Offset { get; private set; }
         public World World { get; set; }
@@ -114,5 +104,54 @@ namespace Calcifer.Engine.Physics
             Body.LinearVelocity = new JVector(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
             Body.AngularVelocity = new JVector(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 	    }
+
+        void IConstructable.Construct(IDictionary<string, string> param)
+        {
+            var type = param["type"];
+            switch (type)
+            {
+                case "trimesh":
+                    var physData = ResourceFactory.LoadAsset<PhysicsData>(param["physData"]);
+                    var tris = physData.Shapes[0].Triangles.Select(t => new TriangleVertexIndices(t.X, t.Y, t.Z)).ToList();
+                    var verts = physData.Shapes[0].Vertices.Select(v => v.Position.ToJVector()).ToList();
+                    var octree = new Octree(verts, tris);
+                    Shape shape = new TriangleMeshShape(physData.Octree);
+                    Body = new RigidBody(shape) { Material = { Restitution = 0f, KineticFriction = 0f } };
+                    break;
+                case "hull":
+                    physData = ResourceFactory.LoadAsset<PhysicsData>(param["physData"]);
+                    shape = new MinkowskiSumShape(physData.Shapes.Select(
+                        g => new ConvexHullShape(g.Vertices.Select(v => v.Position.ToJVector()).ToList())
+                        ));
+                    Body = new RigidBody(shape);
+                    break;
+                case "sphere":
+                    shape = new SphereShape(float.Parse(param["radius"], CultureInfo.InvariantCulture));
+                    Body = new RigidBody(shape);
+                    break;
+                case "box":
+                    var d = param["size"].ConvertToVector();
+                    var offset = param.Get("offset", "0;0;0").ConvertToVector();
+                    shape = new BoxShape(2.0f * d.ToJVector());
+                    Body = new RigidBody(shape) { Position = offset.ToJVector() };
+                    break;
+                case "capsule":
+                    var height = float.Parse(param["height"], CultureInfo.InvariantCulture);
+                    var radius = float.Parse(param["radius"], CultureInfo.InvariantCulture);
+                    shape = new CapsuleShape(height, radius);
+                    Body = new RigidBody(shape)
+                    {
+                        Position = JVector.Backward * (0.5f * height + radius),
+                        Orientation = JMatrix.CreateRotationX(MathHelper.PiOver2)
+                    };
+                    break;
+                default:
+                    throw new Exception("Unknown shape: " + type);
+            }
+            Body.IsStatic = Convert.ToBoolean(param.Get("static", "false"));
+            Body.Material.KineticFriction = 0.5f;
+            Body.Material.StaticFriction = 0.5f;
+            Body.Material.Restitution = 0.5f;
+        }
     }
 }

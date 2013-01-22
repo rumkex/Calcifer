@@ -18,7 +18,7 @@ namespace Calcifer.Engine.Physics
     // * Body collides only with static geometry
     // * Component detects when body is passing through certain non-static objects
     // * Component raises Hit event.
-    class ProjectileComponent: DependencyComponent
+    public class ProjectileComponent: DependencyComponent
     {
         [RequireComponent] private PhysicsComponent physics;
 

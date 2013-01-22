@@ -2,26 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Calcifer.Engine.Components;
+using Calcifer.Engine.Content;
 using Calcifer.Engine.Graphics.Primitives;
+using Calcifer.Engine.Scenery;
 
 namespace Calcifer.Engine.Graphics.Animation
 {
-    public class BlendAnimationController : AnimationComponent, ISaveable
+    public class BlendAnimationController : AnimationComponent, ISaveable, IConstructable
     {
         private readonly Dictionary<string, AnimationData> anims;
-        private readonly Pose invRestPose;
+        private Pose invRestPose;
         private LinearSequence backup;
         private LinearSequence current;
         private float fadeLeft;
         private float fadeTime;
         private Pose pose;
 
-        public BlendAnimationController(Pose rest)
+        public BlendAnimationController()
         {
-            invRestPose = new Pose(rest);
-            for (int id = 0; id < rest.BoneCount; id++)
-                invRestPose.SetWorldTransform(id, rest[id].WorldTransform.Invert());
-            pose = new Pose(rest.BoneCount);
             anims = new Dictionary<string, AnimationData>();
         }
 
@@ -143,6 +141,19 @@ namespace Calcifer.Engine.Graphics.Animation
                 backup = null;
             }
             pose.MergeWith(invRestPose);
+        }
+
+        void IConstructable.Construct(IDictionary<string, string> param)
+        {
+            var rest = ResourceFactory.LoadAsset<AnimationData>(param["restPose"]).Frames[0];
+            rest.CalculateWorld();
+            invRestPose = new Pose(rest);
+            for (int id = 0; id < rest.BoneCount; id++)
+                invRestPose.SetWorldTransform(id, rest[id].WorldTransform.Invert());
+            pose = new Pose(rest.BoneCount);
+            if (param["animations"] != null)
+                foreach (var animName in param["animations"].Split(';'))
+                    AddAnimation(ResourceFactory.LoadAsset<AnimationData>(animName));
         }
     }
 }

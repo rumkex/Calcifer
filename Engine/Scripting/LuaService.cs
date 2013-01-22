@@ -5,6 +5,7 @@ using System.Linq;
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Graphics.Animation;
 using Calcifer.Engine.Physics;
+using Calcifer.Engine.Scenery;
 using Calcifer.Utilities;
 using Calcifer.Utilities.Logging;
 using ComponentKit;

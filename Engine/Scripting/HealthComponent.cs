@@ -1,11 +1,13 @@
 using System;
+using System.Collections.Generic;
+using Calcifer.Engine.Scenery;
 using Calcifer.Utilities.Logging;
 using ComponentKit;
 using ComponentKit.Model;
 
 namespace Calcifer.Engine.Scripting
 {
-    public class HealthComponent : Component
+    public class HealthComponent : Component, IConstructable
     {
         private int health;
 
@@ -70,6 +72,12 @@ namespace Calcifer.Engine.Scripting
             {
                 dying(this, e);
             }
+        }
+
+        void IConstructable.Construct(IDictionary<string, string> param)
+        {
+            MaxHealth = int.Parse(param["hp"] ?? "100");
+            health = MaxHealth;
         }
     }
 }

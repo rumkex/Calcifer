@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Calcifer.Engine.Graphics.Primitives;
+using Calcifer.Engine.Primitives;
 using OpenTK;
 
 namespace Calcifer.Engine.Graphics

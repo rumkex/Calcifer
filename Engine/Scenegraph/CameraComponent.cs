@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Calcifer.Engine.Scenegraph;
+﻿using Calcifer.Engine.Components;
 using ComponentKit.Model;
 using OpenTK;
 
-namespace Calcifer.Engine.Components
+namespace Calcifer.Engine.Scenegraph
 {
     public class CameraComponent: DependencyComponent, ICamera
     {

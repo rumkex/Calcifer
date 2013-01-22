@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Calcifer.Engine.Graphics.Primitives
+namespace Calcifer.Engine.Primitives
 {
     [StructLayout(LayoutKind.Sequential)]
 // ReSharper disable InconsistentNaming

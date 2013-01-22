@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Calcifer.Engine.Scripting;
 using Calcifer.Utilities.Logging;
+using ComponentKit;
 using ComponentKit.Model;
-using Jitter;
-using Jitter.Collision;
 using Jitter.Collision.Shapes;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
-using OpenTK;
 
 namespace Calcifer.Engine.Physics
 {
@@ -69,11 +63,15 @@ namespace Calcifer.Engine.Physics
             var vel = JVector.Normalize(physics.Body.LinearVelocity);
             if (!(JVector.Dot(vel, dir) > 0f)) return;
             var entity = Entity.Find(otherEntity);
-            if (entity == null || !entity.HasComponent<HealthComponent>() || !entity.HasComponent<LuaComponent>()) return;
+            if (entity == null) return;
             Log.WriteLine(LogLevel.Debug, "Hit detected on {0}", entity.Name);
-            // The same ugly hax that is used in LSA
-            // TODO: Fix ugly haх
-            entity.GetComponent<LuaComponent>().Service.SetWounded(entity.Name, true);
+            OnHit(entity);
+            
+        }
+
+        private void OnHit(IEntityRecord entity)
+        {
+            if (EntityHit != null) EntityHit(this, new SensorEventArgs(entity));
         }
     }
 }

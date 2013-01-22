@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using OpenTK;
 
-namespace Calcifer.Engine.Graphics.Primitives
+namespace Calcifer.Engine.Graphics
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SkinnedVertex

@@ -1,6 +1,6 @@
 using OpenTK;
 
-namespace Calcifer.Engine.Graphics.Primitives
+namespace Calcifer.Engine.Primitives
 {
     public struct Transform
     {

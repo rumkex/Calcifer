@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Calcifer.Engine.Graphics.Primitives;
+using Calcifer.Engine.Primitives;
 using Calcifer.Engine.Scenery;
 using Calcifer.Utilities;
 using ComponentKit.Model;

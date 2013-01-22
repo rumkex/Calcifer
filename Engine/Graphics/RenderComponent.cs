@@ -8,6 +8,7 @@ using Calcifer.Engine.Graphics.Animation;
 using Calcifer.Engine.Graphics.Buffers;
 using Calcifer.Engine.Graphics.Primitives;
 using Calcifer.Engine.Physics;
+using Calcifer.Engine.Primitives;
 using Calcifer.Engine.Scenegraph;
 using Calcifer.Engine.Scenery;
 using ComponentKit;

@@ -7,7 +7,7 @@ using OpenTK;
 
 namespace Calcifer.Utilities
 {
-    static class MathUtils
+    public static class MathUtils
     {
         public static float Clamp(float value, float min, float max)
         {

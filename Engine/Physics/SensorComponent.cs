@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ComponentKit;
 using ComponentKit.Model;
 using Jitter;
 using Jitter.Collision;
@@ -77,27 +78,26 @@ namespace Calcifer.Engine.Physics
 					{
 						// okay, we detected a collision, but it's not already in the list!
 						CollidingBodies.Add(body);
-						if (TriggerEntered != null) TriggerEntered(this, new SensorEventArgs(body));
+						if (TriggerEntered != null) TriggerEntered(this, new SensorEventArgs(Entity.Find(body.Tag.ToString())));
 					}
 	            }
 				if (!collide && CollidingBodies.Contains(body))
 				{
 					// okay, we detected no collisions, but is in the list!
 					CollidingBodies.Remove(body);
-					if (TriggerExited != null) TriggerExited(this, new SensorEventArgs(body));
+                    if (TriggerExited != null) TriggerExited(this, new SensorEventArgs(Entity.Find(body.Tag.ToString())));
 				}
-
             }
         }
 	}
 
 	public class SensorEventArgs : EventArgs
 	{
-		public RigidBody Body { get; private set; }
+		public IEntityRecord Other { get; private set; }
 
-		public SensorEventArgs(RigidBody body)
-		{
-			Body = body;
-		}
+        public SensorEventArgs(IEntityRecord record)
+        {
+            Other = record;
+        }
 	}
 }

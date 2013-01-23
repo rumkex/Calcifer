@@ -111,9 +111,6 @@ namespace Calcifer.Engine.Physics
             {
                 case "trimesh":
                     var physData = ResourceFactory.LoadAsset<PhysicsData>(param["physData"]);
-                    var tris = physData.Shapes[0].Triangles.Select(t => new TriangleVertexIndices(t.X, t.Y, t.Z)).ToList();
-                    var verts = physData.Shapes[0].Vertices.Select(v => v.Position.ToJVector()).ToList();
-                    var octree = new Octree(verts, tris);
                     Shape shape = new TriangleMeshShape(physData.Octree);
                     Body = new RigidBody(shape) { Material = { Restitution = 0f, KineticFriction = 0f } };
                     break;

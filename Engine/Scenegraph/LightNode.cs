@@ -26,7 +26,7 @@ namespace Calcifer.Engine.Scenegraph
             Ambient = ambient;
             Specular = specular;
             Diffuse = diffuse;
-            Position = new Vector4(position, 1.0f);
+            Position = new Vector4(position, 0.0f);
             nodeHandler = Inventory.AddLast(this);
         }
 

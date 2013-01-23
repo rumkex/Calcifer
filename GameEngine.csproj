@@ -71,18 +71,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\Audio\Sound.cs" />
-    <Compile Include="Engine\Components\CameraComponent.cs" />
+    <Compile Include="Engine\Graphics\SkinnedVertex.cs" />
+    <Compile Include="Engine\Primitives\ScalableTransform.cs" />
+    <Compile Include="Engine\Primitives\Transform.cs" />
+    <Compile Include="Engine\Primitives\TransformComponent.cs" />
+    <Compile Include="Engine\Primitives\Vector3i.cs" />
+    <Compile Include="Engine\Primitives\Vector4i.cs" />
+    <Compile Include="Engine\Scenegraph\CameraComponent.cs" />
     <Compile Include="Engine\Scenery\EntityFactory.cs" />
     <Compile Include="Engine\Components\ISaveable.cs" />
     <Compile Include="Engine\Components\IService.cs" />
     <Compile Include="Engine\Components\StateService.cs" />
     <Compile Include="Engine\Graphics\RenderComponent.cs" />
     <Compile Include="Engine\Physics\CrateComponent.cs" />
-    <Compile Include="Engine\Components\KeyboardControllerComponent.cs" />
     <Compile Include="Engine\Physics\ProjectileComponent.cs" />
     <Compile Include="Engine\Physics\TargetConstraint.cs" />
     <Compile Include="Engine\Physics\SensorComponent.cs" />
-    <Compile Include="Engine\Components\TransformComponent.cs" />
     <Compile Include="Engine\Components\IUpdateable.cs" />
     <Compile Include="Engine\Content\ContentManager.cs" />
     <Compile Include="Engine\Content\Data\AssetEntry.cs" />
@@ -115,11 +119,6 @@
     <Compile Include="Engine\Graphics\IRenderer.cs" />
     <Compile Include="Engine\Graphics\Material.cs" />
     <Compile Include="Engine\Graphics\MeshData.cs" />
-    <Compile Include="Engine\Graphics\Primitives\ScalableTransform.cs" />
-    <Compile Include="Engine\Graphics\Primitives\SkinnedVertex.cs" />
-    <Compile Include="Engine\Graphics\Primitives\Transform.cs" />
-    <Compile Include="Engine\Graphics\Primitives\Vector3i.cs" />
-    <Compile Include="Engine\Graphics\Primitives\Vector4i.cs" />
     <Compile Include="Engine\Graphics\RenderHints.cs" />
     <Compile Include="Engine\Graphics\RenderPass.cs" />
     <Compile Include="Engine\Graphics\Shader.cs" />

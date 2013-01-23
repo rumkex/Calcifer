@@ -105,6 +105,14 @@ namespace Calcifer.Engine.Graphics.Animation
                 Transform.Multiply(ref bones[i].WorldTransform, ref other.bones[i].WorldTransform, out bones[i].WorldTransform);
         }
 
+        public void Invert()
+        {
+            CalculateWorld();
+            for (var id = 0; id < BoneCount; id++)
+                SetWorldTransform(id, this[id].WorldTransform.Invert());
+        }
+        
+
         public IEnumerator<Bone> GetEnumerator()
         {
             return ((IEnumerable<Bone>) bones).GetEnumerator();

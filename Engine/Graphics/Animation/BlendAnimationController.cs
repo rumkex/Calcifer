@@ -146,12 +146,9 @@ namespace Calcifer.Engine.Graphics.Animation
 
         void IConstructable.Construct(IDictionary<string, string> param)
         {
-            var rest = ResourceFactory.LoadAsset<AnimationData>(param["restPose"]).Frames[0];
-            rest.CalculateWorld();
-            invRestPose = new Pose(rest);
-            for (int id = 0; id < rest.BoneCount; id++)
-                invRestPose.SetWorldTransform(id, rest[id].WorldTransform.Invert());
-            pose = new Pose(rest.BoneCount);
+            invRestPose = new Pose(ResourceFactory.LoadAsset<AnimationData>(param["restPose"]).Frames[0]);
+            invRestPose.Invert();
+            pose = new Pose(invRestPose.BoneCount);
             if (param["animations"] != null)
                 foreach (var animName in param["animations"].Split(';'))
                     AddAnimation(ResourceFactory.LoadAsset<AnimationData>(animName));

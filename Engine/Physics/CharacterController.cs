@@ -60,6 +60,7 @@ namespace Calcifer.Engine.Physics
         {
             // Controlled movement happens in every state
             var deltaVelocity = TargetVelocity - Body1.LinearVelocity;
+            if (BodyWalkingOn != null) deltaVelocity += BodyWalkingOn.LinearVelocity;
             deltaVelocity -= JVector.Dot(deltaVelocity, normal) * normal;
             // However while in the air, control is greatly reduced
             deltaVelocity *= (state == State.Grounded) ? 0.2f: 0.01f;
@@ -72,7 +73,8 @@ namespace Calcifer.Engine.Physics
                 case State.Grounded:
                     // If player just stands on the ground,
                     // this reduces overall jumpiness
-                    var nvel = Body1.LinearVelocity * normal;
+                    // and glues player to the ground
+                    var nvel = (Body1.LinearVelocity - BodyWalkingOn.LinearVelocity) * normal;
                     Body1.LinearVelocity -= 0.7f*nvel*normal;
                     break;
                 case State.Falling:

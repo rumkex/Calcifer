@@ -59,10 +59,8 @@ namespace Calcifer.Engine.Scenery
                 var key = delta.Component + ":" + delta.Parameter;
                 if (delta.Type == DeltaType.Add)
                 {
-                    if (newdef.Parameters.Contains(key))
-                        newdef.Parameters[key].Value = delta.Value;
-                    else
-                        newdef.Parameters.Add(new Parameter(delta.Component, delta.Parameter, delta.Value));
+                    if (newdef.Parameters.Contains(key)) newdef.Parameters.Remove(key);
+                    newdef.Parameters.Add(new Parameter(delta.Component, delta.Parameter, delta.Value));
                 }
                 else if (newdef.Parameters.Contains(key)) newdef.Parameters.Remove(key);
             }
@@ -79,11 +77,11 @@ namespace Calcifer.Engine.Scenery
 
         private static IComponent BuildComponent(string type, ParameterCollection param)
         {
+            if (!constructors.ContainsKey(type))
+                throw new EngineException(string.Format("Type {0} has no parameterless constructor", type));
             var c = constructors[type]();
-            if (c is IConstructable)
-            {
-                ((IConstructable)c).Construct(param.GetComponent(type));
-            }
+            var constructable = c as IConstructable;
+            if (constructable != null) constructable.Construct(param.GetComponent(type));
             return c;
         }
     }

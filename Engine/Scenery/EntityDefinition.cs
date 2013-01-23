@@ -64,7 +64,7 @@ namespace Calcifer.Engine.Scenery
     }
 
     [XmlRoot("param")]
-    public class Parameter
+    public struct Parameter
     {
         [XmlAttribute("component")]
         public string Component;
@@ -72,9 +72,7 @@ namespace Calcifer.Engine.Scenery
         public string Name;
         [XmlText]
         public string Value;
-        public Parameter()
-        {
-        }
+        
         public Parameter(string component, string name, string value)
         {
             Component = component;

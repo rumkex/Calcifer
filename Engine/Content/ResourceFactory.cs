@@ -34,5 +34,10 @@ namespace Calcifer.Engine.Content
                        ? content.Load<CompositeResource>(r.Source).OfType<T>().FirstOrDefault()
                        : content.Load<T>(r.Source);
         }
+
+        public static T LoadFile<T>(string name) where T : class, IResource
+        {
+            return content.Load<T>(name);
+        }
     }
 }

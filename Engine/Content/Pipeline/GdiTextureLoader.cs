@@ -31,7 +31,7 @@ namespace Calcifer.Engine.Content.Pipeline
                 bmapdata = bmap.LockBits(rect, ImageLockMode.ReadOnly,
                               System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             }
-            var texture = new Texture2D(name);
+            var texture = new Texture2D(name, bmapdata.Width, bmapdata.Height);
             texture.Bind();
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
                             (int)TextureWrapMode.Repeat);

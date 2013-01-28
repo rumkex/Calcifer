@@ -5,13 +5,20 @@ namespace Calcifer.Engine.Graphics.Buffers
 {
 	public class Texture2D : Texture, IResource
     {
-        public Texture2D(string name): base(name)
-        {}
+        public Texture2D(string name, int width, int height) : base(name)
+        {
+            Width = width;
+            Height = height;
+        }
 
         public Texture2D()
         {}
-		
-        public override void Bind()
+
+        public int Height { get; private set; }
+
+        public int Width { get; private set; }
+
+	    public override void Bind()
         {
             GL.BindTexture(TextureTarget.Texture2D, ID);
         }

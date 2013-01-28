@@ -17,7 +17,7 @@ namespace Calcifer.Engine.Content.Pipeline
         {
             var png = new APNG();
             png.Load(stream);
-            return new Texture2D(Path.GetFileName(name));
+            return new Texture2D(Path.GetFileName(name), png[0].Width, png[0].Height);
         }
 
         public override bool Supports(string name, Stream stream)

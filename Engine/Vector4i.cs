@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Calcifer.Engine.Graphics.Primitives
+namespace Calcifer.Engine
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct Vector4i

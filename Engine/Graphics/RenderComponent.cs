@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Content;
 using Calcifer.Engine.Graphics.Animation;
 using Calcifer.Engine.Graphics.Buffers;
-using Calcifer.Engine.Graphics.Primitives;
 using Calcifer.Engine.Physics;
-using Calcifer.Engine.Primitives;
 using Calcifer.Engine.Scenegraph;
 using Calcifer.Engine.Scenery;
-using ComponentKit;
 using ComponentKit.Model;
 using OpenTK.Graphics.OpenGL;
 

@@ -1,6 +1,6 @@
 ﻿using OpenTK;
 
-namespace Calcifer.Engine.Primitives
+namespace Calcifer.Engine
 {
     public struct ScalableTransform
     {

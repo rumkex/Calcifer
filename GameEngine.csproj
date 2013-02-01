@@ -78,11 +78,11 @@
     <Compile Include="Engine\Particles\Particle.cs" />
     <Compile Include="Engine\Particles\ParticleManager.cs" />
     <Compile Include="Engine\Particles\ParticlePool.cs" />
-    <Compile Include="Engine\Primitives\ScalableTransform.cs" />
-    <Compile Include="Engine\Primitives\Transform.cs" />
-    <Compile Include="Engine\Primitives\TransformComponent.cs" />
-    <Compile Include="Engine\Primitives\Vector3i.cs" />
-    <Compile Include="Engine\Primitives\Vector4i.cs" />
+    <Compile Include="Engine\ScalableTransform.cs" />
+    <Compile Include="Engine\Transform.cs" />
+    <Compile Include="Engine\TransformComponent.cs" />
+    <Compile Include="Engine\Vector3i.cs" />
+    <Compile Include="Engine\Vector4i.cs" />
     <Compile Include="Engine\Scenegraph\CameraComponent.cs" />
     <Compile Include="Engine\Scenery\EntityFactory.cs" />
     <Compile Include="Engine\Components\ISaveable.cs" />

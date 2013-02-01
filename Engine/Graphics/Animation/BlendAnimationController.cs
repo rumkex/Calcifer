@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Content;
-using Calcifer.Engine.Graphics.Primitives;
-using Calcifer.Engine.Primitives;
 using Calcifer.Engine.Scenery;
 
 namespace Calcifer.Engine.Graphics.Animation

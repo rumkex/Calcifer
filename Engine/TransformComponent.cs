@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using System.IO;
-using Calcifer.Engine.Graphics.Primitives;
-using Calcifer.Engine.Primitives;
+using Calcifer.Engine.Components;
 using Calcifer.Engine.Scenery;
 using Calcifer.Utilities;
 using ComponentKit.Model;
 using OpenTK;
 using System;
 
-namespace Calcifer.Engine.Components
+namespace Calcifer.Engine
 {
 	public class TransformComponent : Component, ISaveable, IConstructable
 	{

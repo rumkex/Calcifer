@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using Calcifer.Engine.Components;
 using Calcifer.Engine.Content;
-using Calcifer.Engine.Primitives;
 using Calcifer.Engine.Scenery;
 using Calcifer.Utilities;
 using ComponentKit.Model;

@@ -15,7 +15,7 @@ namespace Calcifer.UI
             this.renderer = renderer;
             KeyRepeatInterval = 0.1f;
             selectStack = new Stack<LinkedListNode<UIElement>>();
-            cooldowns = new Dictionary<InputKey, float>();
+            cooldowns = new List<float>();
             Style = "None";
         }
 
@@ -64,18 +64,17 @@ namespace Calcifer.UI
 
         protected override void Update(float time)
         {
-            foreach (var key in cooldowns.Keys)
-                if (cooldowns[key] > 0)
-                    cooldowns[key] -= time;
+            for (int i = 0; i < cooldowns.Count; i++)
+                if (cooldowns[i] > 0f) cooldowns[i] -= time;
         }
 
-        private Dictionary<InputKey, float> cooldowns; 
+        private List<float> cooldowns; 
 
         public void AcceptInput(InputKey key)
         {
-            if (!cooldowns.ContainsKey(key)) cooldowns.Add(key, 0f);
-            if (cooldowns[key] > 0f) return;
-            cooldowns[key] = KeyRepeatInterval;
+            if (cooldowns.Count < (int) key) cooldowns.Add();
+            if (cooldowns[(int)key] > 0f) return;
+            cooldowns[(int)key] = KeyRepeatInterval;
             var focus = (selectStack.Count > 0) ? selectStack.Peek().Value: null;
             if (key == InputKey.Up || key == InputKey.Down)
             {

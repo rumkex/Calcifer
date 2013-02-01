@@ -1,7 +1,6 @@
 ﻿using System;
 using Calcifer.Engine.Graphics;
 using Calcifer.Engine.Graphics.Buffers;
-using Calcifer.Engine.Graphics.Primitives;
 using Calcifer.Utilities.Logging;
 using OpenTK.Graphics.OpenGL;
 

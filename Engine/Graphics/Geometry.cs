@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using Calcifer.Engine.Graphics.Primitives;
-using Calcifer.Engine.Primitives;
 
 namespace Calcifer.Engine.Graphics
 {

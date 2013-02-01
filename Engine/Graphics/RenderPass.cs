@@ -1,8 +1,4 @@
-using Calcifer.Engine.Graphics;
-using Calcifer.Engine.Graphics.Animation;
-using Calcifer.Engine.Graphics.Primitives;
 using Calcifer.Engine.Scenegraph;
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.IO;

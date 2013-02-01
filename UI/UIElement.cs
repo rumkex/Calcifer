@@ -100,6 +100,9 @@ namespace Calcifer.UI
             renderer.Render(this);
         }
 
+        protected virtual void Update(float time)
+        {}
+
         /// <summary>
         /// This method is triggered during rendering by invalidation: for example, when children are added/removed
         /// </summary>
@@ -118,6 +121,12 @@ namespace Calcifer.UI
             {
                 element.DoRender(renderer);
             }
+        }
+
+        internal void DoUpdate(float time)
+        {
+            Update(time);
+            foreach (var element in Children) element.DoUpdate(time);
         }
 
         public virtual void Input(InputKey key)

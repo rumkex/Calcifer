@@ -6,12 +6,16 @@ namespace Calcifer.UI
     public class Canvas : UIElement
     {
         private readonly IRenderer renderer;
-        private readonly Stack<LinkedListNode<UIElement>> selectStack; 
+        private readonly Stack<LinkedListNode<UIElement>> selectStack;
+
+        public float KeyRepeatInterval { get; set; }
 
         public Canvas(IRenderer renderer)
         {
             this.renderer = renderer;
+            KeyRepeatInterval = 0.1f;
             selectStack = new Stack<LinkedListNode<UIElement>>();
+            cooldowns = new Dictionary<InputKey, float>();
             Style = "None";
         }
 
@@ -20,6 +24,11 @@ namespace Calcifer.UI
             renderer.Begin();
             DoRender(renderer);
             renderer.End();
+        }
+
+        public void Tick(float time)
+        {
+            DoUpdate(time);
         }
 
         private enum Direction
@@ -53,14 +62,25 @@ namespace Calcifer.UI
             return current.Value.Selectable ? current.Value: Select(d);
         }
 
+        protected override void Update(float time)
+        {
+            foreach (var key in cooldowns.Keys)
+                if (cooldowns[key] > 0)
+                    cooldowns[key] -= time;
+        }
+
+        private Dictionary<InputKey, float> cooldowns; 
 
         public void AcceptInput(InputKey key)
         {
+            if (!cooldowns.ContainsKey(key)) cooldowns.Add(key, 0f);
+            if (cooldowns[key] > 0f) return;
+            cooldowns[key] = KeyRepeatInterval;
             var focus = (selectStack.Count > 0) ? selectStack.Peek().Value: null;
             if (key == InputKey.Up || key == InputKey.Down)
             {
                 if (focus != null) focus.Unfocus();
-                var elem = Select(key == InputKey.Up ? Direction.Next: Direction.Previous);
+                var elem = Select(key == InputKey.Down ? Direction.Next: Direction.Previous);
                 elem.Focus();
                 return;
             }

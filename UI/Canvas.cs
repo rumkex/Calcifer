@@ -72,7 +72,7 @@ namespace Calcifer.UI
 
         public void AcceptInput(InputKey key)
         {
-            if (cooldowns.Count < (int) key) cooldowns.Add();
+            if (cooldowns.Count <= (int) key) cooldowns.AddRange(new float[(int)key - cooldowns.Count + 1]);
             if (cooldowns[(int)key] > 0f) return;
             cooldowns[(int)key] = KeyRepeatInterval;
             var focus = (selectStack.Count > 0) ? selectStack.Peek().Value: null;

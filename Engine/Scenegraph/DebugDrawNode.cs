@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Calcifer.Engine.Graphics;
+﻿using Calcifer.Engine.Graphics;
 using Jitter;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
@@ -11,26 +7,8 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Calcifer.Engine.Scenegraph
 {
-    public class DebugDrawNode : SceneNode
+    public class DebugDrawNode : SceneNode, IDebugDrawer
     {
-        private class GLDrawer : IDebugDrawer
-        {
-            public void DrawLine(JVector start, JVector end)
-            {
-            }
-            public void DrawPoint(JVector pos)
-            {
-            }
-            public void DrawTriangle(JVector pos1, JVector pos2, JVector pos3)
-            {
-                GL.Vertex3(pos1.X, pos1.Y, pos1.Z);
-                GL.Vertex3(pos2.X, pos2.Y, pos2.Z);
-                GL.Vertex3(pos3.X, pos3.Y, pos3.Z);
-            }
-        }
-
-        private static GLDrawer drawer = new GLDrawer();
-
         private RigidBody body;
         public DebugDrawNode(SceneNode parent, RigidBody b)
             : base(parent)
@@ -43,15 +21,38 @@ namespace Calcifer.Engine.Scenegraph
             Shader.Current.Disable();
             GL.Disable(EnableCap.Texture2D);
             GL.Disable(EnableCap.Lighting);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-            GL.Begin(BeginMode.Triangles);
             GL.Color4(Color4.White);
-            body.DebugDraw(drawer);
+            GL.Begin(BeginMode.Lines);
+            body.DebugDraw(this);
             GL.End();
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Lighting);
             Shader.Current.Enable();
+        }
+
+        public void DrawLine(JVector pos1, JVector pos2)
+        {
+            GL.Vertex3(pos1.X, pos1.Y, pos1.Z);
+            GL.Vertex3(pos2.X, pos2.Y, pos2.Z);
+        }
+
+        public void DrawPoint(JVector pos)
+        {
+            GL.End();
+            GL.Begin(BeginMode.Points);
+            GL.Vertex3(pos.X, pos.Y, pos.Z);
+            GL.End();
+            GL.Begin(BeginMode.Lines);
+        }
+
+        public void DrawTriangle(JVector pos1, JVector pos2, JVector pos3)
+        {
+            GL.Vertex3(pos1.X, pos1.Y, pos1.Z);
+            GL.Vertex3(pos2.X, pos2.Y, pos2.Z);
+            GL.Vertex3(pos2.X, pos2.Y, pos2.Z);
+            GL.Vertex3(pos3.X, pos3.Y, pos3.Z);
+            GL.Vertex3(pos3.X, pos3.Y, pos3.Z);
+            GL.Vertex3(pos1.X, pos1.Y, pos1.Z);
         }
     }
 }

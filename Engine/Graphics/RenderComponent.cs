@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Calcifer.Engine.Components;
 using Calcifer.Engine.Content;
 using Calcifer.Engine.Graphics.Animation;
 using Calcifer.Engine.Graphics.Buffers;

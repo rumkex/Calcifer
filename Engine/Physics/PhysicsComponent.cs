@@ -9,7 +9,6 @@ using Calcifer.Engine.Scenery;
 using Calcifer.Utilities;
 using ComponentKit.Model;
 using Jitter;
-using Jitter.Collision;
 using Jitter.Collision.Shapes;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
@@ -73,9 +72,11 @@ namespace Calcifer.Engine.Physics
 
         public bool CollidesWith(RigidBody other)
         {
-            return Record.HasComponent<SensorComponent>() ? 
-                Record.GetComponent<SensorComponent>().CollidingBodies.Contains(other) : 
-                Body.CollisionIsland.Bodies.Contains(other);
+            if (Record.HasComponent<SensorComponent>())
+                return Record.GetComponent<SensorComponent>().CollidingBodies.Contains(other);
+
+            //if (Body.CollisionIsland.Bodies.Contains(other)) return true;
+            return Body.Arbiters.FirstOrDefault(a => a.Body1 == other || a.Body2 == other) != null;
         }
 
 		public void Synchronize()
@@ -115,9 +116,7 @@ namespace Calcifer.Engine.Physics
                     break;
                 case "hull":
                     physData = ResourceFactory.LoadAsset<PhysicsData>(param["physData"]);
-                    shape = new MinkowskiSumShape(physData.Shapes.Select(
-                        g => new ConvexHullShape(g.Vertices.Select(v => v.Position.ToJVector()).ToList())
-                        ));
+                    shape = new ConvexHullShape(physData.Vertices);
                     Body = new RigidBody(shape);
                     break;
                 case "sphere":

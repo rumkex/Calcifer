@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Calcifer.Engine.Content;
-using Calcifer.Engine.Graphics;
-using Calcifer.Utilities;
 using Jitter.Collision;
+using Jitter.LinearMath;
 
 namespace Calcifer.Engine.Physics
 {
@@ -15,26 +14,24 @@ namespace Calcifer.Engine.Physics
         { 
             get
             {
-                if (octree == null)
-                {
-                    var tris = Shapes[0].Triangles.Select(t => new TriangleVertexIndices(t.X, t.Y, t.Z)).ToList();
-                    var verts = Shapes[0].Vertices.Select(v => v.Position.ToJVector()).ToList();
-                    octree = new Octree(verts, tris);
-                }
+                if (octree == null) octree = new Octree(Vertices, Triangles);
                 return octree;
             } 
         }
 
-        public List<Geometry> Shapes { get; private set; }
+        public List<JVector> Vertices { get; private set; }
+        public List<TriangleVertexIndices> Triangles { get; private set; }
 
-        public PhysicsData(IEnumerable<Geometry> mesh)
+        public PhysicsData(IEnumerable<JVector> vertices, IEnumerable<TriangleVertexIndices> triangles) 
         {
-	        Shapes = mesh.ToList();
+            Vertices = vertices.ToList();
+            Triangles = triangles.ToList();
         }
 
 	    private PhysicsData(PhysicsData source)
 	    {
-		    Shapes = source.Shapes;
+		    Vertices = source.Vertices;
+	        Triangles = source.Triangles;
 	    }
 
 	    public object Clone()

@@ -105,10 +105,14 @@ namespace Calcifer.Engine.Graphics.Animation
 
         public void Crossfade(string name, float time, bool loop)
         {
-            var linearSequence = new LinearSequence(anims[name], loop);
-            backup = linearSequence;
-            fadeLeft = time;
-            fadeTime = time;
+            if (current != null)
+            {
+                var linearSequence = new LinearSequence(anims[name], loop);
+                backup = linearSequence;
+                fadeLeft = time;
+                fadeTime = time;
+            }
+            else Start(name, loop);
         }
 
         public override void Update(double time)

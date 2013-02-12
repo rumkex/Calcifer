@@ -30,6 +30,11 @@ namespace Calcifer.Engine.Graphics.Animation
         public float Speed
         {
             get { return current != null ? current.Speed : 0; }
+            set
+            {
+                if (current != null) current.Speed = value;
+                if (backup != null) backup.Speed = value;
+            }
         }
 
         public float Length
